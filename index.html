@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tablero de Engagement y Onboarding — Argentina</title>
+<title>Customer Success Argentina</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root{
@@ -16,46 +16,46 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     padding:32px 40px 64px; }
   header{margin-bottom:20px; border-bottom:1px solid var(--line); padding-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;}
-  h1{font-size:22px; font-weight:600; margin:0 0 4px; letter-spacing:-0.01em;}
-  .sub{color:var(--ink-soft); font-size:14px; margin:0;}
-  .updated{font-size:12px; color:var(--ink-soft);}
+  h1{font-size:25px; font-weight:600; margin:0 0 4px; letter-spacing:-0.01em;}
+  .sub{color:var(--ink-soft); font-size:16px; margin:0;}
+  .updated{font-size:14px; color:var(--ink-soft);}
 
   .dropdown{position:relative; display:inline-block; margin-bottom:20px;}
-  .dropdown-btn{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 16px; font:inherit; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:8px; min-width:260px; justify-content:space-between;}
-  .dropdown-btn:after{content:'▾'; color:var(--ink-soft); font-size:11px;}
+  .dropdown-btn{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 16px; font:inherit; font-size:15px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:8px; min-width:260px; justify-content:space-between;}
+  .dropdown-btn:after{content:'▾'; color:var(--ink-soft); font-size:12px;}
   .dropdown-panel{position:absolute; top:calc(100% + 6px); left:0; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,.08); z-index:20; min-width:280px; display:none;}
   .dropdown-panel.open{display:block;}
-  .dropdown-panel .grouplabel{font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:10px 0 6px;}
+  .dropdown-panel .grouplabel{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:10px 0 6px;}
   .dropdown-panel .grouplabel:first-child{margin-top:0;}
-  .execchk{display:flex; align-items:center; gap:7px; font-size:13.5px; cursor:pointer; user-select:none; padding:4px 0;}
+  .execchk{display:flex; align-items:center; gap:7px; font-size:15px; cursor:pointer; user-select:none; padding:4px 0;}
   .execchk input{accent-color:var(--accent); width:15px; height:15px; cursor:pointer;}
   .dropdown-actions{display:flex; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
-  .dropdown-actions button{background:none; border:none; color:var(--accent); font-size:12.5px; font-weight:500; cursor:pointer; padding:0;}
+  .dropdown-actions button{background:none; border:none; color:var(--accent); font-size:14px; font-weight:500; cursor:pointer; padding:0;}
 
-  .callout{background:var(--amber-soft); border:1px solid #e9d4a4; color:#5c4419; border-radius:8px; padding:12px 16px; font-size:13px; line-height:1.5; margin-bottom:24px;}
+  .callout{background:var(--amber-soft); border:1px solid #e9d4a4; color:#5c4419; border-radius:8px; padding:12px 16px; font-size:15px; line-height:1.5; margin-bottom:24px;}
   .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:32px;}
   .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
-  .kpi .label{font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
-  .kpi .value{font-size:26px; font-weight:600; line-height:1.1;}
-  .kpi .delta{font-size:12.5px; margin-top:6px; display:flex; align-items:center; gap:4px;}
+  .kpi .label{font-size:13.5px; color:var(--ink-soft); margin-bottom:6px;}
+  .kpi .value{font-size:29px; font-weight:600; line-height:1.1;}
+  .kpi .delta{font-size:14px; margin-top:6px; display:flex; align-items:center; gap:4px;}
   .kpi .delta.up{color:var(--green);}
   .kpi .delta.down{color:var(--red);}
-  .kpi .deltasub{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
-  .kpi .footnote{font-size:10.5px; color:var(--ink-soft); margin-top:6px; line-height:1.3;}
+  .kpi .deltasub{font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .kpi .footnote{font-size:12px; color:var(--ink-soft); margin-top:6px; line-height:1.3;}
   section{margin-bottom:36px;}
   .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
-  h2{font-size:15px; font-weight:600; margin:0;}
-  .note{font-size:12px; color:var(--ink-soft); margin:0;}
+  h2{font-size:17px; font-weight:600; margin:0;}
+  .note{font-size:13.5px; color:var(--ink-soft); margin:0;}
   .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px;}
-  .legend{display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:12px; color:var(--ink-soft);}
+  .legend{display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:13.5px; color:var(--ink-soft);}
   .legend span.item{display:flex; align-items:center; gap:5px;}
   .dot{display:inline-block; width:9px; height:9px; border-radius:2px;}
   .chart-wrap{position:relative; width:100%; height:260px;}
-  .chartdesc{font-size:12px; color:var(--ink-soft); margin:10px 0 0;}
+  .chartdesc{font-size:13.5px; color:var(--ink-soft); margin:10px 0 0;}
   .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   @media (max-width:820px){ .grid-2{grid-template-columns:1fr;} body{padding:20px;} }
 
-  .switch-wrap{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);}
+  .switch-wrap{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-soft);}
   .switch{position:relative; width:38px; height:20px; background:var(--line); border-radius:10px; cursor:pointer; flex-shrink:0;}
   .switch .knob{position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 2px rgba(0,0,0,.2);}
   .switch.on{background:var(--accent);}
@@ -63,31 +63,31 @@
 
   .objetivo{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:20px;}
   .objetivo-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
-  .objetivo-head .label{font-size:13px; font-weight:600;}
-  .objetivo-head .pct{font-size:22px; font-weight:700;}
+  .objetivo-head .label{font-size:15px; font-weight:600;}
+  .objetivo-head .pct{font-size:24px; font-weight:700;}
   .objetivo-bar-track{position:relative; width:100%; height:22px; border-radius:6px; overflow:visible; margin-bottom:26px;}
   .objetivo-pointer{position:absolute; top:-10px; width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-top:10px solid var(--ink); transform:translateX(-50%);}
   .objetivo-marker{position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); opacity:.55;}
-  .objetivo-marker .tag{position:absolute; top:100%; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--ink); white-space:nowrap; margin-top:4px; font-weight:600;}
-  .objetivo-scale{display:flex; justify-content:space-between; font-size:10px; color:var(--ink-soft); margin-top:-16px; margin-bottom:8px;}
-  .objetivo-sub{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:6px; flex-wrap:wrap; gap:4px;}
+  .objetivo-marker .tag{position:absolute; top:100%; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ink); white-space:nowrap; margin-top:4px; font-weight:600;}
+  .objetivo-scale{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-top:-16px; margin-bottom:8px;}
+  .objetivo-sub{display:flex; justify-content:space-between; font-size:13px; color:var(--ink-soft); margin-top:6px; flex-wrap:wrap; gap:4px;}
   .objetivo-grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
   @media (max-width:820px){ .objetivo-grid2{grid-template-columns:1fr;} }
   .resolution-bar{display:flex; width:100%; height:26px; border-radius:6px; overflow:hidden; margin:8px 0 6px;}
-  .resolution-seg{height:100%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden;}
-  .resolution-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-soft); margin-bottom:2px;}
+  .resolution-seg{height:100%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden;}
+  .resolution-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--ink-soft); margin-bottom:2px;}
   .resolution-legend .item{display:flex; align-items:center; gap:5px;}
   .gauge-wrap{display:flex; flex-direction:column; align-items:center; padding-top:2px;}
-  .gauge-label{font-size:11px; color:var(--ink-soft); text-align:center; margin-top:4px; line-height:1.35;}
-  .gauge-value{font-size:20px; font-weight:700; margin-top:2px;}
+  .gauge-label{font-size:12.5px; color:var(--ink-soft); text-align:center; margin-top:4px; line-height:1.35;}
+  .gauge-value{font-size:22px; font-weight:700; margin-top:2px;}
 
-  .info-btn{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--ink-soft); font-size:11px; font-weight:700; cursor:pointer; margin-left:6px; flex-shrink:0;}
-  .info-panel{display:none; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:11.5px; color:var(--ink-soft); margin:8px 0 14px; line-height:1.5;}
+  .info-btn{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--ink-soft); font-size:12.5px; font-weight:700; cursor:pointer; margin-left:6px; flex-shrink:0;}
+  .info-panel{display:none; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin:8px 0 14px; line-height:1.5;}
   .info-panel.open{display:block;}
   .big-kpi{background:var(--accent-soft); border:1px solid #c9ddd6; border-radius:10px; padding:16px 18px; margin-bottom:14px;}
-  .big-kpi .label{font-size:12.5px; color:var(--ink-soft); margin-bottom:4px;}
-  .big-kpi .value{font-size:32px; font-weight:700; line-height:1.1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
-  .big-kpi .delta{font-size:13px; font-weight:500;}
+  .big-kpi .label{font-size:14px; color:var(--ink-soft); margin-bottom:4px;}
+  .big-kpi .value{font-size:35px; font-weight:700; line-height:1.1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .big-kpi .delta{font-size:14.5px; font-weight:500;}
   .big-kpi .delta.up{color:var(--red);}
   .big-kpi .delta.down{color:var(--green);}
 </style>
@@ -95,7 +95,7 @@
 <body>
 <header>
   <div>
-    <h1>Tablero de Engagement y Onboarding — Argentina</h1>
+    <h1>Customer Success Argentina</h1>
     <p class="sub">Retención, churn y valor de cartera por ejecutivo</p>
   </div>
   <div class="updated" id="updatedLabel"></div>
@@ -115,11 +115,21 @@
   </div>
 </div>
 
-<div class="callout">Definición: <strong>Engagement</strong> = cuentas con un ejecutivo de engagement asignado — ya "graduaron" del onboarding. <strong>Onboarding</strong> = cuentas con ejecutivo de onboarding asignado pero <em>sin</em> ejecutivo de engagement todavía — siguen en proceso. Son mutuamente excluyentes.</div>
+<div class="kpis" id="kpiRow"></div>
 
 <div class="objetivo" id="objetivoBox"></div>
 
-<div class="kpis" id="kpiRow"></div>
+<section>
+  <div class="section-head">
+    <h2>Curva histórica de desbloqueo</h2>
+    <p class="note">% de la cartera bloqueada que sigue bloqueada, por día desde el pico</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="unlockLegend"></div>
+    <div class="chart-wrap"><canvas id="unlockChart"></canvas></div>
+    <p class="chartdesc" id="unlockDesc"></p>
+  </div>
+</section>
 
 <section>
   <div class="section-head">
@@ -222,18 +232,6 @@
     <p class="chartdesc">Antes contábamos como "baja" tanto a las cuentas que cancelan como a las que se gradúan a Engagement. Este gráfico separa la graduación (buena noticia) del churn real.</p>
   </div>
   <div class="callout">Usa <code>engagement_executive_assign_date</code> — un campo de fecha de asignación, no un log histórico completo. Excluye diciembre 2025 por un salto que parece migración de datos, no graduaciones orgánicas.</div>
-</section>
-
-<section>
-  <div class="section-head">
-    <h2>Curva histórica de desbloqueo</h2>
-    <p class="note">% de la cartera bloqueada que sigue bloqueada, por día desde el pico</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="unlockLegend"></div>
-    <div class="chart-wrap"><canvas id="unlockChart"></canvas></div>
-    <p class="chartdesc" id="unlockDesc"></p>
-  </div>
 </section>
 
 <script src="data_blob.js"></script>
@@ -346,7 +344,7 @@ function renderObjetivo(){
       <span class="label">Objetivo de retención (meta ${(target*100).toFixed(0)}%)
         <span class="info-btn" id="infoBtnObjetivo">i</span>
       </span>
-      <span class="pct" style="color:${confirmedColor}">${confirmedLossPct.toFixed(2)}% posibles bajas <span style="font-size:13px; font-weight:500;">${deltaConfirmedPct===0?'— sin cambios':(deltaConfirmedPct>0?'▲ +'+deltaConfirmedPct.toFixed(2)+'pp':'▼ '+deltaConfirmedPct.toFixed(2)+'pp')} vs. ayer</span></span>
+      <span class="pct" style="color:${confirmedColor}">${confirmedLossPct.toFixed(2)}% posibles bajas <span style="font-size:14.5px; font-weight:500;">${deltaConfirmedPct===0?'— sin cambios':(deltaConfirmedPct>0?'▲ +'+deltaConfirmedPct.toFixed(2)+'pp':'▼ '+deltaConfirmedPct.toFixed(2)+'pp')} vs. ayer</span></span>
     </div>
     <div class="info-panel" id="infoPanelObjetivo">
       Verde: baja ≤${allowedLossPct.toFixed(1)}% (dentro del objetivo). Ámbar: hasta ${amberLimit.toFixed(1)}%. Rojo: por encima de ${amberLimit.toFixed(1)}%.
@@ -363,10 +361,10 @@ function renderObjetivo(){
         ${faltantesHoy.toLocaleString('es-AR')}
         <span class="delta ${deltaFaltantes>0?'up':(deltaFaltantes<0?'down':'')}">${deltaFaltantes===0?'— sin cambios':(deltaFaltantes>0?'▲ +'+deltaFaltantes:'▼ '+deltaFaltantes)} vs. ayer</span>
       </div>
-      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:11.5px; color:var(--ink-soft);">Mismo día del mes anterior: ${faltantesMismoDiaMesAnterior===null?'s/d':faltantesMismoDiaMesAnterior.toLocaleString('es-AR')}${deltaVsMesAnterior!==null?` (${deltaVsMesAnterior===0?'sin cambios':(deltaVsMesAnterior>0?'▲ +'+deltaVsMesAnterior:'▼ '+deltaVsMesAnterior)})`:''}</span></div>
-      <div class="objetivo-sub" style="margin-top:6px;"><span style="font-size:11px;">Base día 1: ${base.toLocaleString('es-AR')} · máximo ${Math.round(allowedLossCount)} bajas permitidas (2%) · bloqueadas hoy: ${bloqueadasHoy}</span></div>
-      ${imposibleHoy ? `<div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:11px; color:#b23b3b;">⚠ solo hay ${bloqueadasHoy} bloqueadas disponibles — activando todas, igual quedarías ${faltantesHoy-bloqueadasHoy} por encima del objetivo</span></div>` : ''}
-      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:10px;">${rt.baseFijaNota||''}</span></div>
+      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:13px; color:var(--ink-soft);">Mismo día del mes anterior: ${faltantesMismoDiaMesAnterior===null?'s/d':faltantesMismoDiaMesAnterior.toLocaleString('es-AR')}${deltaVsMesAnterior!==null?` (${deltaVsMesAnterior===0?'sin cambios':(deltaVsMesAnterior>0?'▲ +'+deltaVsMesAnterior:'▼ '+deltaVsMesAnterior)})`:''}</span></div>
+      <div class="objetivo-sub" style="margin-top:6px;"><span style="font-size:12.5px;">Base día 1: ${base.toLocaleString('es-AR')} · máximo ${Math.round(allowedLossCount)} bajas permitidas (2%) · bloqueadas hoy: ${bloqueadasHoy}</span></div>
+      ${imposibleHoy ? `<div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:12.5px; color:#b23b3b;">⚠ solo hay ${bloqueadasHoy} bloqueadas disponibles — activando todas, igual quedarías ${faltantesHoy-bloqueadasHoy} por encima del objetivo</span></div>` : ''}
+      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:11.5px;">${rt.baseFijaNota||''}</span></div>
     </div>
 
     <p class="note" style="margin-bottom:4px;">Bloqueadas el ${rt.peakLabel} (${bloqueadasPico}) vs. activas hoy</p>

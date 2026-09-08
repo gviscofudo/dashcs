@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero de Engagement y Onboarding — Argentina</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg:#f6f5f1; --panel:#ffffff; --ink:#1f2320; --ink-soft:#5b6058;
+    --line:#e4e2da; --accent:#2f6f5e; --accent-soft:#e4efec;
+    --amber:#b3781c; --amber-soft:#f7edd9; --red:#b23b3b; --green:#2f6f5e;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:32px 40px 64px; }
+  header{margin-bottom:20px; border-bottom:1px solid var(--line); padding-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;}
+  h1{font-size:22px; font-weight:600; margin:0 0 4px; letter-spacing:-0.01em;}
+  .sub{color:var(--ink-soft); font-size:14px; margin:0;}
+  .updated{font-size:12px; color:var(--ink-soft);}
+
+  .dropdown{position:relative; display:inline-block; margin-bottom:20px;}
+  .dropdown-btn{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 16px; font:inherit; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:8px; min-width:260px; justify-content:space-between;}
+  .dropdown-btn:after{content:'▾'; color:var(--ink-soft); font-size:11px;}
+  .dropdown-panel{position:absolute; top:calc(100% + 6px); left:0; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,.08); z-index:20; min-width:280px; display:none;}
+  .dropdown-panel.open{display:block;}
+  .dropdown-panel .grouplabel{font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:10px 0 6px;}
+  .dropdown-panel .grouplabel:first-child{margin-top:0;}
+  .execchk{display:flex; align-items:center; gap:7px; font-size:13.5px; cursor:pointer; user-select:none; padding:4px 0;}
+  .execchk input{accent-color:var(--accent); width:15px; height:15px; cursor:pointer;}
+  .dropdown-actions{display:flex; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+  .dropdown-actions button{background:none; border:none; color:var(--accent); font-size:12.5px; font-weight:500; cursor:pointer; padding:0;}
+
+  .callout{background:var(--amber-soft); border:1px solid #e9d4a4; color:#5c4419; border-radius:8px; padding:12px 16px; font-size:13px; line-height:1.5; margin-bottom:24px;}
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:32px;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .kpi .label{font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
+  .kpi .value{font-size:26px; font-weight:600; line-height:1.1;}
+  .kpi .delta{font-size:12.5px; margin-top:6px; display:flex; align-items:center; gap:4px;}
+  .kpi .delta.up{color:var(--green);}
+  .kpi .delta.down{color:var(--red);}
+  .kpi .deltasub{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .kpi .footnote{font-size:10.5px; color:var(--ink-soft); margin-top:6px; line-height:1.3;}
+  section{margin-bottom:36px;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
+  h2{font-size:15px; font-weight:600; margin:0;}
+  .note{font-size:12px; color:var(--ink-soft); margin:0;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px;}
+  .legend{display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:12px; color:var(--ink-soft);}
+  .legend span.item{display:flex; align-items:center; gap:5px;}
+  .dot{display:inline-block; width:9px; height:9px; border-radius:2px;}
+  .chart-wrap{position:relative; width:100%; height:260px;}
+  .chartdesc{font-size:12px; color:var(--ink-soft); margin:10px 0 0;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:820px){ .grid-2{grid-template-columns:1fr;} body{padding:20px;} }
+
+  .switch-wrap{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);}
+  .switch{position:relative; width:38px; height:20px; background:var(--line); border-radius:10px; cursor:pointer; flex-shrink:0;}
+  .switch .knob{position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 2px rgba(0,0,0,.2);}
+  .switch.on{background:var(--accent);}
+  .switch.on .knob{left:20px;}
+
+  .objetivo{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:20px;}
+  .objetivo-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+  .objetivo-head .label{font-size:13px; font-weight:600;}
+  .objetivo-head .pct{font-size:22px; font-weight:700;}
+  .objetivo-bar-track{position:relative; width:100%; height:22px; border-radius:6px; overflow:visible; margin-bottom:26px;}
+  .objetivo-pointer{position:absolute; top:-10px; width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-top:10px solid var(--ink); transform:translateX(-50%);}
+  .objetivo-marker{position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); opacity:.55;}
+  .objetivo-marker .tag{position:absolute; top:100%; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--ink); white-space:nowrap; margin-top:4px; font-weight:600;}
+  .objetivo-scale{display:flex; justify-content:space-between; font-size:10px; color:var(--ink-soft); margin-top:-16px; margin-bottom:8px;}
+  .objetivo-sub{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:6px; flex-wrap:wrap; gap:4px;}
+  .objetivo-grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
+  @media (max-width:820px){ .objetivo-grid2{grid-template-columns:1fr;} }
+  .resolution-bar{display:flex; width:100%; height:26px; border-radius:6px; overflow:hidden; margin:8px 0 6px;}
+  .resolution-seg{height:100%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden;}
+  .resolution-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-soft); margin-bottom:2px;}
+  .resolution-legend .item{display:flex; align-items:center; gap:5px;}
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center; padding-top:2px;}
+  .gauge-label{font-size:11px; color:var(--ink-soft); text-align:center; margin-top:4px; line-height:1.35;}
+  .gauge-value{font-size:20px; font-weight:700; margin-top:2px;}
+
+  .info-btn{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--ink-soft); font-size:11px; font-weight:700; cursor:pointer; margin-left:6px; flex-shrink:0;}
+  .info-panel{display:none; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:11.5px; color:var(--ink-soft); margin:8px 0 14px; line-height:1.5;}
+  .info-panel.open{display:block;}
+  .big-kpi{background:var(--accent-soft); border:1px solid #c9ddd6; border-radius:10px; padding:16px 18px; margin-bottom:14px;}
+  .big-kpi .label{font-size:12.5px; color:var(--ink-soft); margin-bottom:4px;}
+  .big-kpi .value{font-size:32px; font-weight:700; line-height:1.1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .big-kpi .delta{font-size:13px; font-weight:500;}
+  .big-kpi .delta.up{color:var(--red);}
+  .big-kpi .delta.down{color:var(--green);}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Tablero de Engagement y Onboarding — Argentina</h1>
+    <p class="sub">Retención, churn y valor de cartera por ejecutivo</p>
+  </div>
+  <div class="updated" id="updatedLabel"></div>
+</header>
+
+<div class="dropdown" id="execDropdown">
+  <button class="dropdown-btn" id="dropdownBtn">Ejecutivos: <span id="dropdownSummary">todos (8)</span></button>
+  <div class="dropdown-panel" id="dropdownPanel">
+    <p class="grouplabel">Engagement</p>
+    <div id="execListEngagement"></div>
+    <p class="grouplabel">Onboarding</p>
+    <div id="execListOnboarding"></div>
+    <div class="dropdown-actions">
+      <button id="selectAllBtn">Seleccionar todos</button>
+      <button id="clearAllBtn">Limpiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="callout">Definición: <strong>Engagement</strong> = cuentas con un ejecutivo de engagement asignado — ya "graduaron" del onboarding. <strong>Onboarding</strong> = cuentas con ejecutivo de onboarding asignado pero <em>sin</em> ejecutivo de engagement todavía — siguen en proceso. Son mutuamente excluyentes.</div>
+
+<div class="objetivo" id="objetivoBox"></div>
+
+<div class="kpis" id="kpiRow"></div>
+
+<section>
+  <div class="section-head">
+    <h2>Composición de cartera por plan</h2>
+    <p class="note">Cuentas activas por ejecutivo, INI / PRO / ADV</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="compLegend"></div>
+    <div class="chart-wrap"><canvas id="compChart"></canvas></div>
+  </div>
+</section>
+
+<div class="grid-2">
+  <section>
+    <div class="section-head">
+      <h2>Churn mensual</h2>
+      <div class="switch-wrap">
+        <span>General</span>
+        <div class="switch" id="churnSwitch"><div class="knob"></div></div>
+        <span>Por ejecutivo</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="legend" id="churnLegend"></div>
+      <div class="chart-wrap"><canvas id="churnChart"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Net Revenue Retention</h2>
+      <div class="switch-wrap">
+        <span>General</span>
+        <div class="switch" id="nrrSwitch"><div class="knob"></div></div>
+        <span>Por ejecutivo</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="legend" id="nrcLegend"></div>
+      <div class="chart-wrap"><canvas id="nrcChart"></canvas></div>
+    </div>
+  </section>
+</div>
+
+<section>
+  <div class="section-head">
+    <h2>Churn por plan (equipo)</h2>
+    <p class="note">% churn mensual desglosado por INI / PRO / ADV</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="churnPlanLegend"></div>
+    <div class="chart-wrap"><canvas id="churnPlanChart"></canvas></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Retención de cohortes — M3 / M6 / M12</h2>
+    <p class="note" id="teamScopedNote"></p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="cohortLegend"></div>
+    <div class="chart-wrap"><canvas id="cohortChart"></canvas></div>
+    <p class="chartdesc">De las cuentas que contrataron 3, 6 o 12 meses antes de ese punto (M0 = mes de alta), qué % sigue pagando en ese milestone.</p>
+  </div>
+  <div class="callout" id="cohortCaveat" style="display:none;">Ojo al leer esta curva para Onboarding: las cuentas que <em>se gradúan</em> a Engagement salen de este grupo. Lo que queda "todavía en Onboarding" a los 6-12 meses son, en su mayoría, las que <strong>no lograron graduarse</strong> — por eso la retención cae tan fuerte. No es que Onboarding pierda casi todo; es que las que andan bien ya pasaron a Engagement.</div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Retención N1 / N2</h2>
+    <p class="note">Evolución mensual, % sobre activas al día 1, ejecutivos seleccionados combinados</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="n1n2Legend"></div>
+    <div class="chart-wrap"><canvas id="n1n2Chart"></canvas></div>
+    <p class="chartdesc"><strong>N1</strong>: cuentas activas todo el mes sin llegar a bloquearse. <strong>N2</strong>: cuentas que se bloquean mid-mes pero pagan y vuelven a activo antes del cierre.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Recupero de bajas</h2>
+    <p class="note">% de cuentas DROPPED al día 1 del mes que terminan ACTIVE al día 31 última hora</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="recLegend"></div>
+    <div class="chart-wrap"><canvas id="recChart"></canvas></div>
+  </div>
+</section>
+
+<section id="gradSection" style="display:none;">
+  <div class="section-head">
+    <h2>Graduaciones a Engagement por mes</h2>
+    <p class="note">Cuentas que pasaron de Onboarding a Engagement, por ejecutivo que las onboardeó</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="gradLegend"></div>
+    <div class="chart-wrap"><canvas id="gradChart"></canvas></div>
+    <p class="chartdesc">Antes contábamos como "baja" tanto a las cuentas que cancelan como a las que se gradúan a Engagement. Este gráfico separa la graduación (buena noticia) del churn real.</p>
+  </div>
+  <div class="callout">Usa <code>engagement_executive_assign_date</code> — un campo de fecha de asignación, no un log histórico completo. Excluye diciembre 2025 por un salto que parece migración de datos, no graduaciones orgánicas.</div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Curva histórica de desbloqueo</h2>
+    <p class="note">% de la cartera bloqueada que sigue bloqueada, por día desde el pico</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="unlockLegend"></div>
+    <div class="chart-wrap"><canvas id="unlockChart"></canvas></div>
+    <p class="chartdesc" id="unlockDesc"></p>
+  </div>
+</section>
+
+<script src="data_blob.js"></script>
+<script>
+const MONTHS_END = ['2025-10-01','2025-11-01','2025-12-01','2026-01-01','2026-02-01','2026-03-01','2026-04-01','2026-05-01','2026-06-01','2026-07-01','2026-08-01'];
+const MONTHS_LABEL = ['Oct 25','Nov 25','Dic 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26','Jul 26','Ago 26'];
+const grid = '#e1e0d9';
+let charts = {};
+let selectedExecs = new Set(DATA.allExecs);
+let churnByExec = false;
+let nrrByExec = false;
+
+function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+function fmtUSD(v){ return '$' + Math.round(v).toLocaleString('es-AR'); }
+function legendHTML(list){ return list.map(e => `<span class="item"><span class="dot" style="background:${DATA.colors[e]}"></span>${e}</span>`).join(''); }
+function selList(){ return DATA.allExecs.filter(e => selectedExecs.has(e)); }
+function scopeTeams(){
+  const teams = new Set(selList().map(e => DATA.teamOf[e]));
+  if (teams.size === 0) return null;
+  if (teams.size === 1) return [...teams][0];
+  return 'mixed';
+}
+
+// ---- dropdown executive picker ----
+function buildExecDropdown(){
+  const eng = DATA.allExecs.filter(e => DATA.teamOf[e] === 'engagement');
+  const onb = DATA.allExecs.filter(e => DATA.teamOf[e] === 'onboarding');
+  const rowHTML = (list) => list.map(e => `
+    <label class="execchk"><input type="checkbox" data-exec="${e}" checked>
+    <span class="dot" style="background:${DATA.colors[e]}"></span>${e}</label>
+  `).join('');
+  document.getElementById('execListEngagement').innerHTML = rowHTML(eng);
+  document.getElementById('execListOnboarding').innerHTML = rowHTML(onb);
+  document.querySelectorAll('.execchk input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const e = cb.dataset.exec;
+      if (cb.checked) selectedExecs.add(e); else selectedExecs.delete(e);
+      updateDropdownSummary();
+      renderAll();
+    });
+  });
+  const btn = document.getElementById('dropdownBtn');
+  const panel = document.getElementById('dropdownPanel');
+  btn.addEventListener('click', (ev) => { ev.stopPropagation(); panel.classList.toggle('open'); });
+  document.addEventListener('click', (ev) => { if (!document.getElementById('execDropdown').contains(ev.target)) panel.classList.remove('open'); });
+  document.getElementById('selectAllBtn').addEventListener('click', () => {
+    selectedExecs = new Set(DATA.allExecs);
+    document.querySelectorAll('.execchk input').forEach(cb => cb.checked = true);
+    updateDropdownSummary(); renderAll();
+  });
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    selectedExecs = new Set();
+    document.querySelectorAll('.execchk input').forEach(cb => cb.checked = false);
+    updateDropdownSummary();
+  });
+}
+function updateDropdownSummary(){
+  const n = selectedExecs.size;
+  document.getElementById('dropdownSummary').textContent = (n === DATA.allExecs.length) ? `todos (${n})` : (n === 0 ? 'ninguno' : `${n} seleccionados`);
+}
+
+function renderObjetivo(){
+  const list = selList();
+  const rt = DATA.retentionTarget;
+  if (!rt) return;
+  let bloqueadasPico = 0, recuperadasDesdePico = 0, siguenBloqueadas = 0, yaCayeronDePico = 0, droppedYa = 0;
+  let bloqueadasHoy = 0, bloqueadasAyer = 0, droppedAyer = 0, base = 0;
+  let baseMismoDiaMesAnterior = 0, bloqueadasMismoDiaMesAnterior = 0;
+  list.forEach(e => { const p = rt.progress[e]; if (p) {
+    bloqueadasPico += p.bloqueadasPico; recuperadasDesdePico += p.recuperadasDesdePico;
+    siguenBloqueadas += p.siguenBloqueadas; yaCayeronDePico += p.yaCayeronDePico; droppedYa += p.droppedYa;
+    bloqueadasHoy += p.bloqueadasHoy; bloqueadasAyer += p.bloqueadasAyer; droppedAyer += p.droppedAyer;
+    base += p.baseDia1;
+    baseMismoDiaMesAnterior += p.baseMismoDiaMesAnterior; bloqueadasMismoDiaMesAnterior += p.bloqueadasMismoDiaMesAnterior;
+  } });
+  const target = rt.target;
+  const allowedLossPct = (1 - target) * 100; // 2.0
+  const amberLimit = allowedLossPct * 1.25; // 2.5
+  // base FIJA del día 1 del mes, de los ejecutivos seleccionados — las bloqueadas son las mismas cuentas de esa base que cambiaron de estado, no se suman aparte
+  const allowedLossCount = base * (1 - target);
+
+  const confirmedLossPct = base ? (bloqueadasHoy / base * 100) : 0; // "posibles bajas" = bloqueadas hoy sobre la base — todavía no hay baja confirmada
+  const confirmedLossPctAyer = base ? (bloqueadasAyer / base * 100) : 0;
+  const deltaConfirmedPct = confirmedLossPct - confirmedLossPctAyer;
+
+  function zoneColor(v){ if (v===null) return '#9a9a90'; if (v<=allowedLossPct) return '#2f6f5e'; if (v<=amberLimit) return '#b3781c'; return '#b23b3b'; }
+  const confirmedColor = zoneColor(confirmedLossPct);
+
+  const scaleMax = Math.max(amberLimit * 1.4, (confirmedLossPct||0) * 1.15, 3);
+  const valuePos = confirmedLossPct === null ? 0 : Math.min(100, confirmedLossPct / scaleMax * 100);
+  const greenEnd = Math.min(100, allowedLossPct / scaleMax * 100);
+  const amberEnd = Math.min(100, amberLimit / scaleMax * 100);
+  const trackGradient = `linear-gradient(to right, #2f6f5e 0%, #2f6f5e ${greenEnd}%, #b3781c ${greenEnd}%, #b3781c ${amberEnd}%, #b23b3b ${amberEnd}%, #b23b3b 100%)`;
+
+  // cuentas faltantes de activar para churn on target
+  // = bloqueadas hoy - máximo permitido (2% de la base fija del día 1)
+  // (todavía no hay baja confirmada este mes: sale recién de las bloqueadas que no cambien de estado a fin de mes)
+  function faltantes(bloq){ return Math.max(0, Math.round(bloq - allowedLossCount)); }
+  const faltantesHoy = faltantes(bloqueadasHoy);
+  const faltantesAyer = faltantes(bloqueadasAyer);
+  const allowedLossCountMesAnterior = baseMismoDiaMesAnterior * (1 - target);
+  const faltantesMismoDiaMesAnterior = baseMismoDiaMesAnterior ? Math.max(0, Math.round(bloqueadasMismoDiaMesAnterior - allowedLossCountMesAnterior)) : null;
+  const deltaVsMesAnterior = faltantesMismoDiaMesAnterior === null ? null : (faltantesHoy - faltantesMismoDiaMesAnterior);
+  const deltaFaltantes = faltantesHoy - faltantesAyer;
+  const imposibleHoy = faltantesHoy > bloqueadasHoy;
+  const faltantesColor = faltantesHoy === 0 ? '#2f6f5e' : (imposibleHoy ? '#b23b3b' : (faltantesHoy <= bloqueadasHoy*0.5 ? '#b3781c' : '#b23b3b'));
+
+  document.getElementById('objetivoBox').innerHTML = `
+    <div class="objetivo-head">
+      <span class="label">Objetivo de retención (meta ${(target*100).toFixed(0)}%)
+        <span class="info-btn" id="infoBtnObjetivo">i</span>
+      </span>
+      <span class="pct" style="color:${confirmedColor}">${confirmedLossPct.toFixed(2)}% posibles bajas <span style="font-size:13px; font-weight:500;">${deltaConfirmedPct===0?'— sin cambios':(deltaConfirmedPct>0?'▲ +'+deltaConfirmedPct.toFixed(2)+'pp':'▼ '+deltaConfirmedPct.toFixed(2)+'pp')} vs. ayer</span></span>
+    </div>
+    <div class="info-panel" id="infoPanelObjetivo">
+      Verde: baja ≤${allowedLossPct.toFixed(1)}% (dentro del objetivo). Ámbar: hasta ${amberLimit.toFixed(1)}%. Rojo: por encima de ${amberLimit.toFixed(1)}%.
+      Base = cuentas activas el día 1 del mes (fija, no cambia). Las bloqueadas son esas mismas cuentas que cambiaron de estado — no se suman aparte. Todavía no hay baja confirmada este mes: sale recién a fin de mes, de las bloqueadas que no hayan pagado.
+    </div>
+    <div class="objetivo-bar-track" style="background:${trackGradient};">
+      <div class="objetivo-pointer" style="left:${valuePos}%; border-top-color:${confirmedColor};"></div>
+    </div>
+    <div class="objetivo-scale"><span>0%</span><span>${scaleMax.toFixed(1)}%</span></div>
+
+    <div class="big-kpi">
+      <div class="label">Cuentas faltantes de activar (bloqueadas → activas) para estar en el mínimo 98% de retención</div>
+      <div class="value" style="color:${faltantesColor}">
+        ${faltantesHoy.toLocaleString('es-AR')}
+        <span class="delta ${deltaFaltantes>0?'up':(deltaFaltantes<0?'down':'')}">${deltaFaltantes===0?'— sin cambios':(deltaFaltantes>0?'▲ +'+deltaFaltantes:'▼ '+deltaFaltantes)} vs. ayer</span>
+      </div>
+      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:11.5px; color:var(--ink-soft);">Mismo día del mes anterior: ${faltantesMismoDiaMesAnterior===null?'s/d':faltantesMismoDiaMesAnterior.toLocaleString('es-AR')}${deltaVsMesAnterior!==null?` (${deltaVsMesAnterior===0?'sin cambios':(deltaVsMesAnterior>0?'▲ +'+deltaVsMesAnterior:'▼ '+deltaVsMesAnterior)})`:''}</span></div>
+      <div class="objetivo-sub" style="margin-top:6px;"><span style="font-size:11px;">Base día 1: ${base.toLocaleString('es-AR')} · máximo ${Math.round(allowedLossCount)} bajas permitidas (2%) · bloqueadas hoy: ${bloqueadasHoy}</span></div>
+      ${imposibleHoy ? `<div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:11px; color:#b23b3b;">⚠ solo hay ${bloqueadasHoy} bloqueadas disponibles — activando todas, igual quedarías ${faltantesHoy-bloqueadasHoy} por encima del objetivo</span></div>` : ''}
+      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:10px;">${rt.baseFijaNota||''}</span></div>
+    </div>
+
+    <p class="note" style="margin-bottom:4px;">Bloqueadas el ${rt.peakLabel} (${bloqueadasPico}) vs. activas hoy</p>
+    <div class="resolution-legend">
+      <span class="item"><span class="dot" style="background:#2f6f5e"></span>Activas hoy: ${recuperadasDesdePico}</span>
+      <span class="item"><span class="dot" style="background:#b3781c"></span>Bloqueadas: ${siguenBloqueadas}</span>
+      <span class="item"><span class="dot" style="background:#b23b3b"></span>Cayeron: ${yaCayeronDePico}</span>
+    </div>
+  `;
+  const infoBtn = document.getElementById('infoBtnObjetivo');
+  const infoPanel = document.getElementById('infoPanelObjetivo');
+  if (infoBtn) infoBtn.addEventListener('click', () => infoPanel.classList.toggle('open'));
+}
+
+function renderKPIs(){
+  const list = selList();
+  // Retención total (último mes cerrado, Ago 26)
+  let ai=0, n1=0, n2=0;
+  list.forEach(e => { const d = (DATA.n1n2m[e]||{})['2026-08-01']; if (d) { ai+=d.ai; n1+=d.n1; n2+=d.n2; } });
+  const retencion = ai ? ((n1+n2)/ai*100) : null;
+
+  // Cuentas activas ajustadas hoy vs mismo día mes anterior
+  let actToday=0, actPrev=0, blkToday=0, blkPrev=0;
+  list.forEach(e => {
+    const s = DATA.snapshot[e];
+    if (s) {
+      actToday += s.today ? s.today.activasAdj : 0;
+      actPrev  += s.prev  ? s.prev.activasAdj  : 0;
+      blkToday += s.today ? s.today.bloqueadas : 0;
+      blkPrev  += s.prev  ? s.prev.bloqueadas  : 0;
+    }
+  });
+  const actDeltaPct = actPrev ? ((actToday-actPrev)/actPrev*100) : null;
+  const blkDeltaPct = blkPrev ? ((blkToday-blkPrev)/blkPrev*100) : null;
+
+  // Recupero de bajas hoy vs ayer
+  let recToday=0, recYesterday=0;
+  list.forEach(e => {
+    const r = DATA.recover[e];
+    if (r) { recToday += r.today||0; recYesterday += r.yesterday||0; }
+  });
+  const recDelta = recToday - recYesterday;
+
+  // Solicita baja este mes
+  let solBaja = 0;
+  list.forEach(e => { solBaja += DATA.solicitaBaja[e] || 0; });
+
+  const arrowHTML = (pct, goodIsUp, suffix) => {
+    if (pct === null) return `<span class="deltasub">s/d ${suffix}</span>`;
+    const up = pct >= 0;
+    const cls = (up === goodIsUp) ? 'up' : 'down';
+    const arrow = up ? '▲' : '▼';
+    return `<div class="delta ${cls}">${arrow} ${Math.abs(pct).toFixed(1)}% ${suffix}</div>`;
+  };
+  const arrowCount = (delta, goodIsUp, suffix) => {
+    const up = delta >= 0;
+    const cls = (up === goodIsUp) ? 'up' : 'down';
+    const arrow = delta === 0 ? '—' : (up ? '▲' : '▼');
+    return `<div class="delta ${cls}">${arrow} ${delta > 0 ? '+' : ''}${delta} ${suffix}</div>`;
+  };
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi">
+      <div class="label">Retención total cartera (ago, cerrado)</div>
+      <div class="value">${retencion !== null ? retencion.toFixed(1)+'%' : 's/d'}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Cuentas activas (hoy)</div>
+      <div class="value">${actToday.toLocaleString('es-AR')}</div>
+      ${arrowHTML(actDeltaPct, true, 'vs. mismo día mes anterior')}
+      <div class="footnote">Retenidas del mes anterior + clientes existentes reactivados. Excluye altas nuevas, bloqueadas y bajas del mes.</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Cuentas bloqueadas (hoy)</div>
+      <div class="value">${blkToday.toLocaleString('es-AR')}</div>
+      ${arrowHTML(blkDeltaPct, false, 'vs. mismo día mes anterior')}
+    </div>
+    <div class="kpi">
+      <div class="label">Recupero de bajas (hoy)</div>
+      <div class="value">${recToday.toLocaleString('es-AR')}</div>
+      ${arrowCount(recDelta, true, 'vs. ayer')}
+      <div class="footnote">Cuentas de baja al inicio del mes que ahora están activas.</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Solicitudes de baja (mes en curso)</div>
+      <div class="value">${solBaja.toLocaleString('es-AR')}</div>
+      <div class="footnote">Propiedad "requests_drop" de HubSpot = SI, con fecha en el mes en curso. Confirmar si esta es la propiedad correcta.</div>
+    </div>
+  `;
+}
+
+function renderComposition(){
+  destroyChart('compChart');
+  const list = selList();
+  document.getElementById('compLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>INI</span><span class="item"><span class="dot" style="background:#eb6834"></span>PRO</span><span class="item"><span class="dot" style="background:#1baf7a"></span>ADV</span>';
+  const ini = list.map(e => (DATA.comp[e]||{}).ini || 0);
+  const pro = list.map(e => (DATA.comp[e]||{}).pro || 0);
+  const adv = list.map(e => (DATA.comp[e]||{}).adv || 0);
+  charts.compChart = new Chart(document.getElementById('compChart'), {
+    type:'bar',
+    data:{ labels:list, datasets:[
+      { label:'INI', data:ini, backgroundColor:'#2a78d6', borderRadius:3, stack:'s' },
+      { label:'PRO', data:pro, backgroundColor:'#eb6834', borderRadius:3, stack:'s' },
+      { label:'ADV', data:adv, backgroundColor:'#1baf7a', borderRadius:3, stack:'s' }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+c.parsed.y.toLocaleString('es-AR') } } },
+      scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:grid}} } }
+  });
+}
+
+function renderChurnExec(){
+  destroyChart('churnChart');
+  const list = selList();
+  if (churnByExec) {
+    document.getElementById('churnLegend').innerHTML = legendHTML(list);
+    const datasets = list.map(e => {
+      const m = DATA.execs[e].months;
+      const data = MONTHS_END.map(mo => { const d = m[mo]; return (d && d.ai) ? (d.churn/d.ai*100) : null; });
+      return { label:e, data, borderColor:DATA.colors[e], backgroundColor:DATA.colors[e], borderWidth:2, pointRadius:3, tension:0.15 };
+    });
+    charts.churnChart = new Chart(document.getElementById('churnChart'), {
+      type:'line', data:{ labels:MONTHS_LABEL, datasets },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+    });
+  } else {
+    document.getElementById('churnLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2f6f5e"></span>Churn general</span>';
+    const data = MONTHS_END.map(mo => {
+      let ai=0, churn=0;
+      list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { ai+=d.ai; churn+=d.churn; } });
+      return ai ? (churn/ai*100) : null;
+    });
+    charts.churnChart = new Chart(document.getElementById('churnChart'), {
+      type:'line', data:{ labels:MONTHS_LABEL, datasets:[
+        { label:'Churn general', data, borderColor:'#2f6f5e', backgroundColor:'#2f6f5e', borderWidth:2.5, pointRadius:3, tension:0.15 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+    });
+  }
+}
+
+function renderNRR(){
+  destroyChart('nrcChart');
+  const list = selList();
+  if (nrrByExec) {
+    document.getElementById('nrcLegend').innerHTML = legendHTML(list);
+    const nrcData = list.map(e => {
+      const m = DATA.execs[e].months;
+      const data = MONTHS_END.map(mo => { const d = m[mo]; return (d && d.mrri) ? ((d.mrrf + (d.mrrrec||0))/d.mrri*100) : null; });
+      return { label:e, data, backgroundColor:DATA.colors[e], borderRadius:3 };
+    });
+    charts.nrcChart = new Chart(document.getElementById('nrcChart'), {
+      type:'bar', data:{ labels:MONTHS_LABEL, datasets:nrcData },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d') } } },
+        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+    });
+  } else {
+    document.getElementById('nrcLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2f6f5e"></span>NRR general</span>';
+    const data = MONTHS_END.map(mo => {
+      let mrri=0, mrrf=0, mrrrec=0;
+      list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
+      return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
+    });
+    charts.nrcChart = new Chart(document.getElementById('nrcChart'), {
+      type:'bar', data:{ labels:MONTHS_LABEL, datasets:[
+        { label:'NRR general', data, backgroundColor:'#2f6f5e', borderRadius:3 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d') } } },
+        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+    });
+  }
+}
+
+function sumTeamPlanData(scope){
+  if (scope !== 'mixed') return DATA.churnPlan[scope] || {};
+  const out = {};
+  ['ini','pro','adv'].forEach(plan => {
+    out[plan] = {};
+    MONTHS_END.forEach(mo => {
+      const e = (DATA.churnPlan.engagement[plan]||{})[mo] || {ai:0, churn:0};
+      const o = (DATA.churnPlan.onboarding[plan]||{})[mo] || {ai:0, churn:0};
+      out[plan][mo] = { ai: e.ai + o.ai, churn: e.churn + o.churn };
+    });
+  });
+  return out;
+}
+function sumCohortData(scope){
+  if (scope !== 'mixed') return DATA.cohort[scope] || {};
+  const out = {};
+  ['3','6','12'].forEach(k => {
+    out[k] = {};
+    MONTHS_END.forEach(mo => {
+      const e = (DATA.cohort.engagement[k]||{})[mo] || {size:0, ret:0};
+      const o = (DATA.cohort.onboarding[k]||{})[mo] || {size:0, ret:0};
+      out[k][mo] = { size: e.size + o.size, ret: e.ret + o.ret };
+    });
+  });
+  return out;
+}
+
+function renderTeamScoped(){
+  destroyChart('churnPlanChart'); destroyChart('cohortChart');
+  const scope = scopeTeams() || 'engagement';
+  const cp = sumTeamPlanData(scope);
+  document.getElementById('churnPlanLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>INI</span><span class="item"><span class="dot" style="background:#eb6834"></span>PRO</span><span class="item"><span class="dot" style="background:#1baf7a"></span>ADV</span>';
+  const planData = (plan) => MONTHS_END.map(mo => { const d = (cp[plan]||{})[mo]; return d && d.ai ? (d.churn/d.ai*100) : null; });
+  charts.churnPlanChart = new Chart(document.getElementById('churnPlanChart'), {
+    type:'line',
+    data:{ labels:MONTHS_LABEL, datasets:[
+      { label:'INI', data:planData('ini'), borderColor:'#2a78d6', backgroundColor:'#2a78d6', borderWidth:2, pointRadius:3, tension:0.15 },
+      { label:'PRO', data:planData('pro'), borderColor:'#eb6834', backgroundColor:'#eb6834', borderWidth:2, pointRadius:3, tension:0.15 },
+      { label:'ADV', data:planData('adv'), borderColor:'#1baf7a', backgroundColor:'#1baf7a', borderWidth:2, pointRadius:3, tension:0.15 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+  });
+
+  const cohortSrc = sumCohortData('mixed');
+  document.getElementById('cohortLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>M3</span><span class="item"><span class="dot" style="background:#eb6834"></span>M6</span><span class="item"><span class="dot" style="background:#1baf7a"></span>M12</span>';
+  const mData = (k) => MONTHS_END.map(mo => { const d = (cohortSrc[String(k)]||{})[mo]; return d && d.size ? (d.ret/d.size*100) : null; });
+  charts.cohortChart = new Chart(document.getElementById('cohortChart'), {
+    type:'line',
+    data:{ labels:MONTHS_LABEL, datasets:[
+      { label:'M3', data:mData(3), borderColor:'#2a78d6', backgroundColor:'#2a78d6', borderWidth:2, pointRadius:3, tension:0.15 },
+      { label:'M6', data:mData(6), borderColor:'#eb6834', backgroundColor:'#eb6834', borderWidth:2, pointRadius:3, tension:0.15 },
+      { label:'M12', data:mData(12), borderColor:'#1baf7a', backgroundColor:'#1baf7a', borderWidth:2, pointRadius:3, tension:0.15 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{min:0, max:100, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+  });
+  document.getElementById('teamScopedNote').textContent = 'Engagement + Onboarding combinados (todas las etapas)';
+  document.getElementById('cohortCaveat').style.display = 'block';
+  document.getElementById('gradSection').style.display = (scope==='engagement') ? 'none' : 'block';
+  if (scope !== 'engagement') renderGraduations();
+}
+
+function renderN1N2(){
+  destroyChart('n1n2Chart');
+  const list = selList();
+  document.getElementById('n1n2Legend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>Retención N1</span><span class="item"><span class="dot" style="background:#eb6834"></span>Retención N2</span>';
+  const n1pct = MONTHS_END.map(mo => {
+    let ai=0, n1=0;
+    list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { ai+=d.ai; n1+=d.n1; } });
+    return ai ? (n1/ai*100) : null;
+  });
+  const n2pct = MONTHS_END.map(mo => {
+    let ai=0, n2=0;
+    list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { ai+=d.ai; n2+=d.n2; } });
+    return ai ? (n2/ai*100) : null;
+  });
+  charts.n1n2Chart = new Chart(document.getElementById('n1n2Chart'), {
+    type:'line',
+    data:{ labels:MONTHS_LABEL, datasets:[
+      { label:'Retención N1', data:n1pct, borderColor:'#2a78d6', backgroundColor:'#2a78d6', borderWidth:2, pointRadius:3, tension:0.15 },
+      { label:'Retención N2', data:n2pct, borderColor:'#eb6834', backgroundColor:'#eb6834', borderWidth:2, pointRadius:3, tension:0.15 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+  });
+}
+
+function renderRecupero(){
+  destroyChart('recChart');
+  const list = selList();
+  document.getElementById('recLegend').innerHTML = '<span class="item"><span class="dot" style="background:#1baf7a"></span>Recupero de bajas</span>';
+  const data = MONTHS_END.map(mo => {
+    let dropped=0, rec=0;
+    list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { dropped+=d.dropped; rec+=d.rec; } });
+    return dropped ? (rec/dropped*100) : null;
+  });
+  charts.recChart = new Chart(document.getElementById('recChart'), {
+    type:'bar',
+    data:{ labels:MONTHS_LABEL, datasets:[
+      { label:'Recupero de bajas', data, backgroundColor:'#1baf7a', borderRadius:3 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+  });
+}
+
+const GRAD_MONTHS = ['2025-09-01','2025-10-01','2025-11-01','2026-01-01','2026-02-01','2026-03-01','2026-04-01','2026-05-01','2026-06-01','2026-07-01','2026-08-01'];
+const GRAD_LABELS = ['Sep 25','Oct 25','Nov 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26','Jul 26','Ago 26'];
+function renderGraduations(){
+  destroyChart('gradChart');
+  const execsG = Object.keys(DATA.grad).filter(e => selectedExecs.has(e));
+  const list = execsG.length ? execsG : Object.keys(DATA.grad);
+  document.getElementById('gradLegend').innerHTML = legendHTML(list);
+  const datasets = list.map(e => ({
+    label:e, data:GRAD_MONTHS.map(mo => DATA.grad[e][mo] ?? 0),
+    backgroundColor:DATA.colors[e], borderRadius:3
+  }));
+  charts.gradChart = new Chart(document.getElementById('gradChart'), {
+    type:'bar', data:{ labels:GRAD_LABELS, datasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+c.parsed.y+' cuentas' } } },
+      scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:grid}} } }
+  });
+}
+
+function renderUnlockCurve(){
+  destroyChart('unlockChart');
+  const rt = DATA.retentionTarget;
+  const curve = (rt && rt.unlockCurve) || [];
+  if (!curve.length) return;
+  document.getElementById('unlockLegend').innerHTML = '<span class="item"><span class="dot" style="background:#b3781c"></span>% aún bloqueadas</span><span class="item"><span class="dot" style="background:#2f6f5e"></span>% recuperadas</span>';
+  const labels = curve.map(c => `Día +${c.off}`);
+  charts.unlockChart = new Chart(document.getElementById('unlockChart'), {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'% aún bloqueadas', data:curve.map(c=>c.bloqueadasPct), borderColor:'#b3781c', backgroundColor:'#b3781c', borderWidth:2, pointRadius:0, tension:0.2 },
+      { label:'% recuperadas', data:curve.map(c=>c.activasPct), borderColor:'#2f6f5e', backgroundColor:'#2f6f5e', borderWidth:2, pointRadius:0, tension:0.2 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' } } },
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:8}}, y:{min:0, max:100, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+  });
+  document.getElementById('unlockDesc').textContent = (rt.unlockCurveNote||'') + '. Día +0 = pico de bloqueos (' + (rt.peakLabel||'') + '). La proyección del velocímetro usa el último punto de esta curva (fin de mes).';
+}
+
+function renderAll(){
+  if (selList().length === 0) return; // esperar a que marquen al menos uno
+  renderObjetivo();
+  renderUnlockCurve();
+  renderKPIs();
+  renderComposition();
+  renderChurnExec();
+  renderNRR();
+  renderTeamScoped();
+  renderN1N2();
+  renderRecupero();
+}
+
+document.getElementById('churnSwitch').addEventListener('click', function(){
+  churnByExec = !churnByExec;
+  this.classList.toggle('on', churnByExec);
+  renderChurnExec();
+});
+document.getElementById('nrrSwitch').addEventListener('click', function(){
+  nrrByExec = !nrrByExec;
+  this.classList.toggle('on', nrrByExec);
+  renderNRR();
+});
+
+document.getElementById('updatedLabel').textContent = 'Objetivo de retención actualizado: ' + (DATA.lastRefreshed ? new Date(DATA.lastRefreshed).toLocaleString('es-AR') : 's/d') + ' · resto del tablero: último dato cargado manualmente';
+buildExecDropdown();
+renderAll();
+</script>
+</body>
+</html>

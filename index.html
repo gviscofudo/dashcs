@@ -466,6 +466,10 @@ function renderKPIs(){
   });
   const recDelta = recToday - recYesterday;
 
+  // Bloqueadas con intento de login reciente (≤10 días)
+  const loginByExec = (DATA.accountLists && DATA.accountLists.bloqueadasConLogin) || {};
+  const bloqueadasConLoginCount = list.reduce((sum,e) => sum + ((loginByExec[e]||[]).length), 0);
+
   // Solicita baja este mes
   let solBaja = 0;
   list.forEach(e => { solBaja += DATA.solicitaBaja[e] || 0; });
@@ -523,6 +527,11 @@ function renderKPIs(){
       ${arrowCount(recDelta, true, 'vs. ayer')}
       <div class="footnote">Cuentas de baja al inicio del mes que ahora están activas.</div>
     </div>
+    <div class="kpi clickable" id="kpiBloqueadasConLogin">
+      <div class="label">Bloqueadas con intento de login (≤10 días)</div>
+      <div class="value">${bloqueadasConLoginCount.toLocaleString('es-AR')}</div>
+      <div class="footnote">Estado comercial activo, Dash bloqueado, con login en los últimos 10 días — señal de que quieren volver.</div>
+    </div>
     <div class="kpi">
       <div class="label">Solicitudes de baja (mes en curso)</div>
       <div class="value">${solBaja.toLocaleString('es-AR')}</div>
@@ -531,6 +540,7 @@ function renderKPIs(){
   `;
   document.getElementById('kpiBloqueadasHoy').addEventListener('click', () => openAccountModal('Cuentas bloqueadas (hoy)', 'bloqueadasHoy'));
   document.getElementById('kpiRecuperoBajas').addEventListener('click', () => openAccountModal('Recupero de bajas (hoy)', 'recuperoBajas'));
+  document.getElementById('kpiBloqueadasConLogin').addEventListener('click', () => openAccountModal('Bloqueadas con intento de login (≤10 días)', 'bloqueadasConLogin'));
 }
 
 function renderComposition(){
@@ -834,7 +844,7 @@ function openAccountModal(title, key){
   const list = selList();
   modalAccounts = [];
   list.forEach(e => {
-    (byExec[e] || []).forEach(a => modalAccounts.push({ n: a.n, u: a.u, e }));
+    (byExec[e] || []).forEach(a => modalAccounts.push({ n: a.n, u: a.u, e, l: a.l }));
   });
   modalAccounts.sort((a,b) => a.n.localeCompare(b.n, 'es'));
   document.getElementById('accountModalTitle').textContent = title;
@@ -858,7 +868,7 @@ function renderModalList(filterText){
   const showExec = selList().length > 1;
   list.innerHTML = filtered.map(a => `
     <a class="modal-row" href="${a.u}" target="_blank" rel="noopener">
-      <span>${a.n}</span>
+      <span>${a.n}${a.l ? `<br><span class="execname">último login: ${new Date(a.l+'T00:00:00').toLocaleDateString('es-AR')}</span>` : ''}</span>
       ${showExec ? `<span class="execname">${a.e}</span>` : ''}
     </a>
   `).join('');

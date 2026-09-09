@@ -53,14 +53,24 @@ repo en la integración de GitHub de la cuenta de Claude). `scripts/refresh_data
 la lógica de referencia pero no se ejecuta directamente por ese motivo.
 
 Secciones que SÍ se actualizan en cada refresh: `retentionTarget` completo (bloqueadas,
-recuperadas, dropped, pico del mes — pero NO la base día 1, ver arriba) y los KPI de arriba
+recuperadas, dropped, pico del mes — pero NO la base día 1, ver arriba), los KPI de arriba
 de todo del tablero ("Cuentas activas (hoy)", "Cuentas bloqueadas (hoy)", "Recupero de bajas
-(hoy)" — estos dos últimos con un panel desplegable con buscador que lista las cuentas
-puntuales, linkeadas a HubSpot vía `hubspot_accounts.hubspot_registry_id` y el portal
-5096255. OJO: `hubspot_registry_id` es el ID del objeto **Deal** en HubSpot, NO el de la
-Company — verificado contra 4 cuentas distintas vía la API de HubSpot. La URL correcta es
+(hoy)", "Bloqueadas con intento de login (≤10 días)" — estos tres últimos con un panel
+desplegable con buscador que lista las cuentas puntuales, linkeadas a HubSpot vía
+`hubspot_accounts.hubspot_registry_id` y el portal 5096255), y "NRR último mes" / "NRR
+promedio" (calculados en el cliente a partir de `execs[ejecutivo].months`, no requieren
+query nueva). OJO: `hubspot_registry_id` es el ID del objeto **Deal** en HubSpot, NO el de
+la Company — verificado contra 4 cuentas distintas vía la API de HubSpot. La URL correcta es
 `https://app.hubspot.com/contacts/5096255/record/0-3/{hubspot_registry_id}` (0-3 = Deal;
 0-2 sería Company y da un link roto/"not found").
+
+**"Bloqueadas con intento de login (≤10 días)"**: cuentas con `commercial_status`=ACTIVE
+(dentro de la base) y `status`=BLOCKED hoy (mismo criterio que "bloqueadas hoy"), Y
+`hubspot_accounts.last_login_date >= today() - 10`. Señal de cuentas que quieren volver
+pese a estar bloqueadas. Va en `data.accountLists.bloqueadasConLogin[ejecutivo]`, cada
+cuenta con `{n: nombre, u: url de HubSpot, l: fecha de último login "YYYY-MM-DD"}` (el
+campo `l` es lo que hace que el panel muestre "último login: ..." en cada fila — los otros
+accountLists no lo llevan).
 
 Secciones que siguen con el último dato cargado a mano (no automatizadas todavía): churn
 histórico, NRR, composición, cohortes M3/M6/M12, curva de desbloqueo, N1/N2, gráfico de

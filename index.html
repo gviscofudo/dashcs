@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Customer Success Argentina</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root{
     --bg:#f6f5f1; --panel:#ffffff; --ink:#1f2320; --ink-soft:#5b6058;
@@ -147,6 +148,9 @@
     </div>
   </div>
 </div>
+<div class="dropdown" style="margin-left:10px;">
+  <select class="dropdown-btn" id="monthSelect" style="appearance:none; -webkit-appearance:none; cursor:pointer;"></select>
+</div>
 
 <div class="kpis" id="kpiRow"></div>
 
@@ -276,6 +280,8 @@ let charts = {};
 let selectedExecs = new Set(DATA.allExecs);
 let churnByExec = false;
 let nrrByExec = false;
+let selectedMonth = MONTHS_END[MONTHS_END.length - 1];
+function monthLabelFor(mo){ const i = MONTHS_END.indexOf(mo); return i >= 0 ? MONTHS_LABEL[i] : mo; }
 
 function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
 function fmtUSD(v){ return '$' + Math.round(v).toLocaleString('es-AR'); }
@@ -414,10 +420,18 @@ function renderObjetivo(){
 
 function renderKPIs(){
   const list = selList();
-  // Retención total (último mes cerrado, Ago 26)
+  // Retención total (mes cerrado seleccionado con el filtro de mes de arriba)
   let ai=0, n1=0, n2=0;
-  list.forEach(e => { const d = (DATA.n1n2m[e]||{})['2026-08-01']; if (d) { ai+=d.ai; n1+=d.n1; n2+=d.n2; } });
+  list.forEach(e => { const d = (DATA.n1n2m[e]||{})[selectedMonth]; if (d) { ai+=d.ai; n1+=d.n1; n2+=d.n2; } });
   const retencion = ai ? ((n1+n2)/ai*100) : null;
+
+  // NRR promedio (promedio simple del NRR mensual a lo largo de todo el histórico mostrado, Oct 25-Ago 26)
+  const nrrMonthly = MONTHS_END.map(mo => {
+    let mrri=0, mrrf=0, mrrrec=0;
+    list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
+    return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
+  }).filter(v => v !== null);
+  const nrrProm = nrrMonthly.length ? (nrrMonthly.reduce((a,b)=>a+b,0)/nrrMonthly.length) : null;
 
   // Cuentas activas ajustadas hoy vs mismo día mes anterior
   let actToday=0, actPrev=0, blkToday=0, blkPrev=0;
@@ -461,8 +475,13 @@ function renderKPIs(){
 
   document.getElementById('kpiRow').innerHTML = `
     <div class="kpi">
-      <div class="label">Retención total cartera (ago, cerrado)</div>
+      <div class="label">Retención total cartera (${monthLabelFor(selectedMonth).toLowerCase()}, cerrado)</div>
       <div class="value">${retencion !== null ? retencion.toFixed(1)+'%' : 's/d'}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">NRR promedio (Oct 25 – Ago 26)</div>
+      <div class="value">${nrrProm !== null ? nrrProm.toFixed(1)+'%' : 's/d'}</div>
+      <div class="footnote">Promedio simple del NRR mensual general en todo el histórico del tablero.</div>
     </div>
     <div class="kpi">
       <div class="label">Cuentas activas (hoy)</div>
@@ -550,30 +569,49 @@ function renderNRR(){
   const list = selList();
   if (nrrByExec) {
     document.getElementById('nrcLegend').innerHTML = legendHTML(list);
+    const mrriByExec = {}, mrrfFinalByExec = {};
     const nrcData = list.map(e => {
       const m = DATA.execs[e].months;
-      const data = MONTHS_END.map(mo => { const d = m[mo]; return (d && d.mrri) ? ((d.mrrf + (d.mrrrec||0))/d.mrri*100) : null; });
+      const mrriArr = MONTHS_END.map(mo => (m[mo]||{}).mrri || null);
+      const mrrfFinalArr = MONTHS_END.map(mo => { const d = m[mo]; return d ? (d.mrrf + (d.mrrrec||0)) : null; });
+      mrriByExec[e] = mrriArr; mrrfFinalByExec[e] = mrrfFinalArr;
+      const data = MONTHS_END.map((mo,i) => mrriArr[i] ? (mrrfFinalArr[i]/mrriArr[i]*100) : null);
       return { label:e, data, backgroundColor:DATA.colors[e], borderRadius:3 };
     });
     charts.nrcChart = new Chart(document.getElementById('nrcChart'), {
       type:'bar', data:{ labels:MONTHS_LABEL, datasets:nrcData },
       options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d') } } },
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{
+          label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d'),
+          afterLabel:(c)=>{ const mrri=mrriByExec[c.dataset.label][c.dataIndex], mrrf=mrrfFinalByExec[c.dataset.label][c.dataIndex];
+            return (mrri!=null && mrrf!=null) ? `MRR: ${fmtUSD(mrrf)} de ${fmtUSD(mrri)} inicial` : ''; }
+        } } },
         scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
     });
   } else {
     document.getElementById('nrcLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2f6f5e"></span>NRR general</span>';
+    const mrriArr = [], mrrfFinalArr = [];
     const data = MONTHS_END.map(mo => {
       let mrri=0, mrrf=0, mrrrec=0;
       list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
+      mrriArr.push(mrri||null); mrrfFinalArr.push(mrri ? (mrrf+mrrrec) : null);
       return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
     });
     charts.nrcChart = new Chart(document.getElementById('nrcChart'), {
       type:'bar', data:{ labels:MONTHS_LABEL, datasets:[
         { label:'NRR general', data, backgroundColor:'#2f6f5e', borderRadius:3 }
       ]},
+      plugins:[ChartDataLabels],
       options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d') } } },
+        plugins:{ legend:{display:false},
+          tooltip:{ callbacks:{
+            label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d'),
+            afterLabel:(c)=>{ const mrri=mrriArr[c.dataIndex], mrrf=mrrfFinalArr[c.dataIndex];
+              return (mrri!=null && mrrf!=null) ? `MRR: ${fmtUSD(mrrf)} de ${fmtUSD(mrri)} inicial` : ''; }
+          } },
+          datalabels:{ display:(c)=>mrrfFinalArr[c.dataIndex]!=null, anchor:'end', align:'top', offset:2,
+            color:'#5b6058', font:{size:9.5}, formatter:(v,c)=>fmtUSD(mrrfFinalArr[c.dataIndex]) }
+        },
         scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
     });
   }
@@ -674,9 +712,11 @@ function renderRecupero(){
   destroyChart('recChart');
   const list = selList();
   document.getElementById('recLegend').innerHTML = '<span class="item"><span class="dot" style="background:#1baf7a"></span>Recupero de bajas</span>';
+  const droppedArr = [], recArr = [];
   const data = MONTHS_END.map(mo => {
     let dropped=0, rec=0;
     list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { dropped+=d.dropped; rec+=d.rec; } });
+    droppedArr.push(dropped||null); recArr.push(dropped ? rec : null);
     return dropped ? (rec/dropped*100) : null;
   });
   charts.recChart = new Chart(document.getElementById('recChart'), {
@@ -684,8 +724,17 @@ function renderRecupero(){
     data:{ labels:MONTHS_LABEL, datasets:[
       { label:'Recupero de bajas', data, backgroundColor:'#1baf7a', borderRadius:3 }
     ]},
+    plugins:[ChartDataLabels],
     options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{
+          label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d'),
+          afterLabel:(c)=>{ const dropped=droppedArr[c.dataIndex], rec=recArr[c.dataIndex];
+            return (dropped!=null && rec!=null) ? `${rec} de ${dropped} cuentas` : ''; }
+        } },
+        datalabels:{ display:(c)=>recArr[c.dataIndex]!=null, anchor:'end', align:'top', offset:2,
+          color:'#5b6058', font:{size:9.5}, formatter:(v,c)=>`${recArr[c.dataIndex]}/${droppedArr[c.dataIndex]}` }
+      },
       scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
   });
 }
@@ -796,7 +845,17 @@ document.getElementById('accountModalClose').addEventListener('click', closeAcco
 document.getElementById('accountModalOverlay').addEventListener('click', e => { if (e.target.id === 'accountModalOverlay') closeAccountModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccountModal(); });
 
+function buildMonthSelect(){
+  const sel = document.getElementById('monthSelect');
+  sel.innerHTML = MONTHS_END.map((mo, i) => `<option value="${mo}" ${mo===selectedMonth?'selected':''}>${MONTHS_LABEL[i]} (cerrado)</option>`).join('');
+  sel.addEventListener('change', () => {
+    selectedMonth = sel.value;
+    renderKPIs();
+  });
+}
+
 buildExecDropdown();
+buildMonthSelect();
 renderAll();
 </script>
 </body>

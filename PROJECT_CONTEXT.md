@@ -57,7 +57,10 @@ recuperadas, dropped, pico del mes — pero NO la base día 1, ver arriba) y los
 de todo del tablero ("Cuentas activas (hoy)", "Cuentas bloqueadas (hoy)", "Recupero de bajas
 (hoy)" — estos dos últimos con un panel desplegable con buscador que lista las cuentas
 puntuales, linkeadas a HubSpot vía `hubspot_accounts.hubspot_registry_id` y el portal
-5096255: `https://app.hubspot.com/contacts/5096255/record/0-2/{hubspot_registry_id}`).
+5096255. OJO: `hubspot_registry_id` es el ID del objeto **Deal** en HubSpot, NO el de la
+Company — verificado contra 4 cuentas distintas vía la API de HubSpot. La URL correcta es
+`https://app.hubspot.com/contacts/5096255/record/0-3/{hubspot_registry_id}` (0-3 = Deal;
+0-2 sería Company y da un link roto/"not found").
 
 Secciones que siguen con el último dato cargado a mano (no automatizadas todavía): churn
 histórico, NRR, composición, cohortes M3/M6/M12, curva de desbloqueo, N1/N2, gráfico de

@@ -433,6 +433,17 @@ function renderKPIs(){
   }).filter(v => v !== null);
   const nrrProm = nrrMonthly.length ? (nrrMonthly.reduce((a,b)=>a+b,0)/nrrMonthly.length) : null;
 
+  // NRR del último mes cerrado (Ago 26) vs. el mes anterior (Jul 26)
+  const nrrForMonth = (mo) => {
+    let mrri=0, mrrf=0, mrrrec=0;
+    list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
+    return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
+  };
+  const lastMo = MONTHS_END[MONTHS_END.length-1], prevMo = MONTHS_END[MONTHS_END.length-2];
+  const nrrLast = nrrForMonth(lastMo);
+  const nrrPrevM = nrrForMonth(prevMo);
+  const nrrDeltaPP = (nrrLast !== null && nrrPrevM !== null) ? (nrrLast - nrrPrevM) : null;
+
   // Cuentas activas ajustadas hoy vs mismo día mes anterior
   let actToday=0, actPrev=0, blkToday=0, blkPrev=0;
   list.forEach(e => {
@@ -472,11 +483,23 @@ function renderKPIs(){
     const arrow = delta === 0 ? '—' : (up ? '▲' : '▼');
     return `<div class="delta ${cls}">${arrow} ${delta > 0 ? '+' : ''}${delta} ${suffix}</div>`;
   };
+  const arrowPP = (deltaPP, goodIsUp, suffix) => {
+    if (deltaPP === null) return `<span class="deltasub">s/d ${suffix}</span>`;
+    const up = deltaPP >= 0;
+    const cls = (up === goodIsUp) ? 'up' : 'down';
+    const arrow = up ? '▲' : '▼';
+    return `<div class="delta ${cls}">${arrow} ${deltaPP>0?'+':''}${deltaPP.toFixed(1)}pp ${suffix}</div>`;
+  };
 
   document.getElementById('kpiRow').innerHTML = `
     <div class="kpi">
       <div class="label">Retención total cartera (${monthLabelFor(selectedMonth).toLowerCase()}, cerrado)</div>
       <div class="value">${retencion !== null ? retencion.toFixed(1)+'%' : 's/d'}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">NRR último mes (${monthLabelFor(lastMo).toLowerCase()})</div>
+      <div class="value">${nrrLast !== null ? nrrLast.toFixed(1)+'%' : 's/d'}</div>
+      ${arrowPP(nrrDeltaPP, true, `vs. ${monthLabelFor(prevMo).toLowerCase()}`)}
     </div>
     <div class="kpi">
       <div class="label">NRR promedio (Oct 25 – Ago 26)</div>

@@ -19,6 +19,14 @@ cruzadas con fudata_v2.hubspot_accounts por engagement_executive/onboarding_exec
   (hubspot_accounts.sales_count > 50). Ojo: sales_count no tiene historial propio (no hay
   forma de saber su valor exacto el día 1), así que hay ~1% de margen de error contra un
   corte manual.
+  **IMPORTANTE — se congela una sola vez por mes, NO se recalcula en cada refresh.** Como
+  sales_count no tiene historial, sólo se puede leer con su valor ACTUAL — si se recalculara
+  todos los días, la base iría subiendo sola a medida que más cuentas cruzan las 50 ventas
+  durante el mes (sales_count es acumulativo). El refresh diario/dos-veces-al-día actualiza
+  bloqueadas, recuperadas, dropped, etc. contra esta base fija, pero nunca reescribe
+  `retentionTarget.progress[ejecutivo].baseDia1` ni `retentionTarget.baseFija` una vez
+  fijados para el mes. Sólo se vuelve a calcular al iniciar un mes nuevo.
+  Base confirmada de **septiembre 2026: 13.749** cuentas (total, todos los ejecutivos).
 - **Objetivo de retención**: 98% (2% de baja máxima permitida sobre esa base).
   Escala de color: verde ≤2%, ámbar hasta 2.5%, rojo por encima.
 - **Pico de bloqueos mensual**: los bloqueos no se dan gradualmente, se dan todos de
@@ -37,14 +45,28 @@ cruzadas con fudata_v2.hubspot_accounts por engagement_executive/onboarding_exec
   un error, revisar igual si se pide.
 
 ## Estado de la automatización
-`scripts/refresh_data.py` + `.github/workflows/refresh.yml` actualizan automáticamente
-UNA SOLA sección del tablero (Objetivo de retención) una vez por día, vía GitHub Actions.
-El resto del tablero (churn histórico, NRR, composición, cohortes M3/M6/M12, curva de
-desbloqueo, KPIs de arriba) sigue con el último dato cargado a mano — no está automatizado
-todavía. Extenderlo es el mismo patrón: una función por sección en refresh_data.py.
+NO se usa GitHub Actions con API key de Metabase (decisión tomada: no guardar esa key en
+secrets de GitHub). El refresh lo corre Cowork manualmente/por tarea programada, usando el
+conector de Metabase directo, y sube los cambios a mano porque esta sesión de Cowork no
+tiene el repo `gviscofudo/dashcs` autorizado para hacer `git push` (pendiente: autorizar el
+repo en la integración de GitHub de la cuenta de Claude). `scripts/refresh_data.py` documenta
+la lógica de referencia pero no se ejecuta directamente por ese motivo.
+
+Secciones que SÍ se actualizan en cada refresh: `retentionTarget` completo (bloqueadas,
+recuperadas, dropped, pico del mes — pero NO la base día 1, ver arriba) y los KPI de arriba
+de todo del tablero ("Cuentas activas (hoy)", "Cuentas bloqueadas (hoy)", "Recupero de bajas
+(hoy)" — estos dos últimos con un panel desplegable con buscador que lista las cuentas
+puntuales, linkeadas a HubSpot vía `hubspot_accounts.hubspot_registry_id` y el portal
+5096255: `https://app.hubspot.com/contacts/5096255/record/0-2/{hubspot_registry_id}`).
+
+Secciones que siguen con el último dato cargado a mano (no automatizadas todavía): churn
+histórico, NRR, composición, cohortes M3/M6/M12, curva de desbloqueo, N1/N2, gráfico de
+graduación, "Solicitudes de baja". Extenderlo es el mismo patrón: una función por sección.
 
 ## Qué NO hacer
 - No asumir que el pico de bloqueos es siempre el día 6 (era un supuesto incorrecto).
 - No sumar "baja confirmada" + "bloqueadas" como poblaciones separadas del total.
 - No usar el total de la compañía como base si el usuario filtró por ejecutivo — la base
   tiene que ser la de los ejecutivos seleccionados.
+- No recalcular "base día 1" (`baseDia1` / `baseFija`) en un refresh que no sea el primero
+  del mes — ver la nota de "IMPORTANTE" más arriba.

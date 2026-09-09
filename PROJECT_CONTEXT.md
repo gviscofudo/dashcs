@@ -55,7 +55,7 @@ la lógica de referencia pero no se ejecuta directamente por ese motivo.
 Secciones que SÍ se actualizan en cada refresh: `retentionTarget` completo (bloqueadas,
 recuperadas, dropped, pico del mes — pero NO la base día 1, ver arriba), los KPI de arriba
 de todo del tablero ("Cuentas activas (hoy)", "Cuentas bloqueadas (hoy)", "Recupero de bajas
-(hoy)", "Bloqueadas con intento de login (≤10 días)" — estos tres últimos con un panel
+(hoy)", "Bloqueadas con intento de login (≤7 días)" — estos tres últimos con un panel
 desplegable con buscador que lista las cuentas puntuales, linkeadas a HubSpot vía
 `hubspot_accounts.hubspot_registry_id` y el portal 5096255), y "NRR último mes" / "NRR
 promedio" (calculados en el cliente a partir de `execs[ejecutivo].months`, no requieren
@@ -64,9 +64,9 @@ la Company — verificado contra 4 cuentas distintas vía la API de HubSpot. La 
 `https://app.hubspot.com/contacts/5096255/record/0-3/{hubspot_registry_id}` (0-3 = Deal;
 0-2 sería Company y da un link roto/"not found").
 
-**"Bloqueadas con intento de login (≤10 días)"**: cuentas con `commercial_status`=ACTIVE
+**"Bloqueadas con intento de login (≤7 días)"**: cuentas con `commercial_status`=ACTIVE
 (dentro de la base) y `status`=BLOCKED hoy (mismo criterio que "bloqueadas hoy"), Y
-`hubspot_accounts.last_login_date >= today() - 10`. Señal de cuentas que quieren volver
+`hubspot_accounts.last_login_date >= today() - 7`. Señal de cuentas que quieren volver
 pese a estar bloqueadas. Va en `data.accountLists.bloqueadasConLogin[ejecutivo]`, cada
 cuenta con `{n: nombre, u: url de HubSpot, l: fecha de último login "YYYY-MM-DD"}` (el
 campo `l` es lo que hace que el panel muestre "último login: ..." en cada fila — los otros

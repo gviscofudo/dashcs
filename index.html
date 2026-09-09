@@ -466,7 +466,7 @@ function renderKPIs(){
   });
   const recDelta = recToday - recYesterday;
 
-  // Bloqueadas con intento de login reciente (≤10 días)
+  // Bloqueadas con intento de login reciente (≤7 días)
   const loginByExec = (DATA.accountLists && DATA.accountLists.bloqueadasConLogin) || {};
   const bloqueadasConLoginCount = list.reduce((sum,e) => sum + ((loginByExec[e]||[]).length), 0);
 
@@ -528,9 +528,9 @@ function renderKPIs(){
       <div class="footnote">Cuentas de baja al inicio del mes que ahora están activas.</div>
     </div>
     <div class="kpi clickable" id="kpiBloqueadasConLogin">
-      <div class="label">Bloqueadas con intento de login (≤10 días)</div>
+      <div class="label">Bloqueadas con intento de login (≤7 días)</div>
       <div class="value">${bloqueadasConLoginCount.toLocaleString('es-AR')}</div>
-      <div class="footnote">Estado comercial activo, Dash bloqueado, con login en los últimos 10 días — señal de que quieren volver.</div>
+      <div class="footnote">Estado comercial activo, Dash bloqueado, con login en los últimos 7 días — señal de que quieren volver.</div>
     </div>
     <div class="kpi">
       <div class="label">Solicitudes de baja (mes en curso)</div>
@@ -540,7 +540,7 @@ function renderKPIs(){
   `;
   document.getElementById('kpiBloqueadasHoy').addEventListener('click', () => openAccountModal('Cuentas bloqueadas (hoy)', 'bloqueadasHoy'));
   document.getElementById('kpiRecuperoBajas').addEventListener('click', () => openAccountModal('Recupero de bajas (hoy)', 'recuperoBajas'));
-  document.getElementById('kpiBloqueadasConLogin').addEventListener('click', () => openAccountModal('Bloqueadas con intento de login (≤10 días)', 'bloqueadasConLogin'));
+  document.getElementById('kpiBloqueadasConLogin').addEventListener('click', () => openAccountModal('Bloqueadas con intento de login (≤7 días)', 'bloqueadasConLogin'));
 }
 
 function renderComposition(){
@@ -846,7 +846,12 @@ function openAccountModal(title, key){
   list.forEach(e => {
     (byExec[e] || []).forEach(a => modalAccounts.push({ n: a.n, u: a.u, e, l: a.l }));
   });
-  modalAccounts.sort((a,b) => a.n.localeCompare(b.n, 'es'));
+  const hasLoginDates = modalAccounts.some(a => a.l);
+  if (hasLoginDates) {
+    modalAccounts.sort((a,b) => (b.l||'').localeCompare(a.l||'') || a.n.localeCompare(b.n, 'es'));
+  } else {
+    modalAccounts.sort((a,b) => a.n.localeCompare(b.n, 'es'));
+  }
   document.getElementById('accountModalTitle').textContent = title;
   document.getElementById('accountModalSearch').value = '';
   renderModalList('');

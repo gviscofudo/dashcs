@@ -52,6 +52,13 @@
   .legend span.item{display:flex; align-items:center; gap:5px;}
   .dot{display:inline-block; width:9px; height:9px; border-radius:2px;}
   .chart-wrap{position:relative; width:100%; height:260px;}
+  .chart-wrap-sm{height:130px;}
+  .mini-details{margin-top:16px; border-top:1px solid var(--line); padding-top:12px;}
+  .mini-details summary{cursor:pointer; font-size:13px; color:var(--ink-soft); list-style:none; display:flex; align-items:center; gap:6px; user-select:none;}
+  .mini-details summary::-webkit-details-marker{display:none;}
+  .mini-details summary:before{content:'▸'; font-size:11px; transition:transform .15s;}
+  .mini-details[open] summary:before{content:'▾';}
+  .mini-details .legend, .mini-details .chart-wrap{margin-top:10px;}
   .chartdesc{font-size:13.5px; color:var(--ink-soft); margin:10px 0 0;}
   .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   @media (max-width:820px){ .grid-2{grid-template-columns:1fr;} body{padding:20px;} }
@@ -158,18 +165,6 @@
 
 <section>
   <div class="section-head">
-    <h2>Curva histórica de desbloqueo</h2>
-    <p class="note">% de la cartera bloqueada que sigue bloqueada, por día desde el pico</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="unlockLegend"></div>
-    <div class="chart-wrap"><canvas id="unlockChart"></canvas></div>
-    <p class="chartdesc" id="unlockDesc"></p>
-  </div>
-</section>
-
-<section>
-  <div class="section-head">
     <h2>Proyección: cuentas faltantes para objetivo</h2>
     <p class="note">Estimado día a día, usando la curva de desbloqueo calibrada contra el dato real de hoy</p>
   </div>
@@ -177,6 +172,13 @@
     <div class="legend" id="projLegend"></div>
     <div class="chart-wrap"><canvas id="projChart"></canvas></div>
     <p class="chartdesc" id="projDesc"></p>
+
+    <details class="mini-details" id="unlockDetails">
+      <summary>Curva histórica de desbloqueo (referencia)</summary>
+      <div class="legend" id="unlockLegend"></div>
+      <div class="chart-wrap chart-wrap-sm"><canvas id="unlockChart"></canvas></div>
+      <p class="chartdesc" id="unlockDesc"></p>
+    </details>
   </div>
 </section>
 
@@ -861,34 +863,42 @@ function renderProjection(){
   const projectedHoySinCalibrar = bloqueadasPico * (pctHoyCurva/100);
   const factor = projectedHoySinCalibrar > 0 ? (bloqueadasHoy / projectedHoySinCalibrar) : 1;
 
-  const labels = [], dataFaltantes = [], isToday = [];
+  const finalIdx = endOffset;
+  let midIdx = Math.round((todayOffset + endOffset) / 2);
+  if (midIdx <= todayOffset + 1 || midIdx >= finalIdx - 1) midIdx = -1; // muy cerca de los otros dos, no lo marcamos
+
+  const labels = [], dataFaltantes = [], pointKind = []; // pointKind: 'today' | 'mid' | 'final' | null
   for (let o = 0; o <= endOffset; o++){
     const calDay = Math.min(peakDayNum + o, daysInMonth);
     const d = new Date(Date.UTC(refreshDate.getUTCFullYear(), refreshDate.getUTCMonth(), calDay));
     labels.push(`${calDay} ${MONTH_ABBR[d.getUTCMonth()]}`);
     const bloqueadasEstimadas = (o === todayOffset) ? bloqueadasHoy : (bloqueadasPico * (curvePctAt(o)/100) * factor);
     dataFaltantes.push(faltantesFn(bloqueadasEstimadas));
-    isToday.push(o === todayOffset);
+    pointKind.push(o === todayOffset ? 'today' : (o === midIdx ? 'mid' : (o === finalIdx ? 'final' : null)));
   }
 
   document.getElementById('projLegend').innerHTML = '<span class="item"><span class="dot" style="background:#b23b3b"></span>Cuentas faltantes estimadas</span><span class="item"><span class="dot" style="background:#2a2a24"></span>Hoy (dato real)</span>';
+
+  const kindLabel = (k, v) => k==='today' ? `Hoy: ${v.toLocaleString('es-AR')}` : (k==='final' ? `Fin de mes: ${v.toLocaleString('es-AR')}` : `${v.toLocaleString('es-AR')}`);
 
   charts.projChart = new Chart(document.getElementById('projChart'), {
     type:'line',
     data:{ labels, datasets:[
       { label:'Cuentas faltantes para objetivo', data:dataFaltantes, borderColor:'#b23b3b', backgroundColor:'rgba(178,59,59,0.12)', borderWidth:2, fill:true, tension:0.25,
-        pointRadius:(c)=>isToday[c.dataIndex]?5:0, pointHoverRadius:(c)=>isToday[c.dataIndex]?6:3,
-        pointBackgroundColor:(c)=>isToday[c.dataIndex]?'#2a2a24':'#b23b3b', pointBorderColor:(c)=>isToday[c.dataIndex]?'#2a2a24':'#b23b3b' }
+        pointRadius:(c)=>pointKind[c.dataIndex]==='today'?5:(pointKind[c.dataIndex]?3.5:0), pointHoverRadius:(c)=>pointKind[c.dataIndex]==='today'?6:4,
+        pointBackgroundColor:(c)=>pointKind[c.dataIndex]==='today'?'#2a2a24':'#b23b3b', pointBorderColor:(c)=>pointKind[c.dataIndex]==='today'?'#2a2a24':'#b23b3b' }
     ]},
     plugins:[ChartDataLabels],
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false},
         tooltip:{ callbacks:{
-          label:(c)=>`${c.parsed.y.toLocaleString('es-AR')} cuentas faltantes${isToday[c.dataIndex]?' (dato real de hoy)':' (estimado)'}`
+          label:(c)=>`${c.parsed.y.toLocaleString('es-AR')} cuentas faltantes${pointKind[c.dataIndex]==='today'?' (dato real de hoy)':' (estimado)'}`
         } },
-        datalabels:{ display:(c)=>isToday[c.dataIndex], anchor:'end', align:'top', offset:6, color:'#2a2a24', font:{size:11, weight:'600'},
-          formatter:(v)=>`Hoy: ${v.toLocaleString('es-AR')}` }
+        datalabels:{ display:(c)=>!!pointKind[c.dataIndex], anchor:'end',
+          align:(c)=>pointKind[c.dataIndex]==='final'?'left':'top', offset:6, color:'#2a2a24', font:{size:11, weight:'600'},
+          formatter:(v,c)=>kindLabel(pointKind[c.dataIndex], v) }
       },
+      layout:{ padding:{top:18, right:10} },
       scales:{ x:{grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:10}}, y:{beginAtZero:true, grid:{color:grid}} } }
   });
 
@@ -971,6 +981,10 @@ document.getElementById('accountModalSearch').addEventListener('input', e => ren
 document.getElementById('accountModalClose').addEventListener('click', closeAccountModal);
 document.getElementById('accountModalOverlay').addEventListener('click', e => { if (e.target.id === 'accountModalOverlay') closeAccountModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccountModal(); });
+document.getElementById('unlockDetails').addEventListener('toggle', function(){
+  // el chart se crea con el <details> cerrado (ancho/alto 0) — al abrirlo hay que forzar un resize
+  if (this.open && charts.unlockChart) charts.unlockChart.resize();
+});
 
 function buildMonthSelect(){
   const sel = document.getElementById('monthSelect');

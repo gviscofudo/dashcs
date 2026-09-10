@@ -72,6 +72,23 @@ cuenta con `{n: nombre, u: url de HubSpot, l: fecha de último login "YYYY-MM-DD
 campo `l` es lo que hace que el panel muestre "último login: ..." en cada fila — los otros
 accountLists no lo llevan).
 
+**"Cuentas activas (hoy)"** (`data.snapshot[ejecutivo].today/prev.activasRaw/activasAdj`,
+usado en `index.html` sólo `activasAdj`) — **IMPORTANTE, se pisó mal una vez, no repetir el
+error**: NO es "activo hoy sin más" ni "activo desde el día 1 del mes". Es, en vivo, sobre
+el alcance actual del ejecutivo (misma regla de exclusividad engagement/onboarding de
+siempre):
+  - `activasRaw` = `commercial_status`=ACTIVE hoy Y `sales_count > 0`.
+  - `activasAdj` = `commercial_status`=ACTIVE hoy Y `sales_count > 50` (el mismo umbral que
+    "base día 1", pero medido EN VIVO cada refresh, no congelado — por eso puede diferir
+    bastante de `baseDia1` sin que sea un error).
+  Reconstruido y validado el 10/9/2026 contra los valores históricos ya guardados en
+  `snapshot[ejecutivo].prev` (coinciden exacto o casi exacto por ejecutivo). Hasta esa
+  fecha se había usado por error una definición sin filtro de `sales_count` (contaba
+  activas desde el día 1 del mes sin importar ventas), lo que infló el total ~13.370→13.713
+  de un día a otro sin que hubiera movimiento real — el usuario lo detectó comparando contra
+  el valor del día anterior. Si el número de "Cuentas activas (hoy)" pega un salto raro de
+  un refresh a otro, sospechar primero de esto antes de asumir que es un problema de datos.
+
 Secciones que siguen con el último dato cargado a mano (no automatizadas todavía): churn
 histórico, NRR, composición, cohortes M3/M6/M12, curva de desbloqueo, N1/N2, gráfico de
 graduación, "Solicitudes de baja". Extenderlo es el mismo patrón: una función por sección.
@@ -83,3 +100,6 @@ graduación, "Solicitudes de baja". Extenderlo es el mismo patrón: una función
   tiene que ser la de los ejecutivos seleccionados.
 - No recalcular "base día 1" (`baseDia1` / `baseFija`) en un refresh que no sea el primero
   del mes — ver la nota de "IMPORTANTE" más arriba.
+- No inventar una definición nueva para "Cuentas activas (hoy)" (`activasRaw`/`activasAdj`)
+  sin validarla contra `snapshot[ejecutivo].prev` — ver la nota de "Cuentas activas (hoy)"
+  más arriba. La fórmula correcta usa `sales_count > 0` (raw) / `sales_count > 50` (adj).

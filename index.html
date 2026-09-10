@@ -125,7 +125,7 @@
 <header>
   <div>
     <h1>Customer Success Argentina</h1>
-    <p class="sub">Retención, churn y valor de cartera por ejecutivo</p>
+    <p class="sub">Tablero Ejecutivo de Retención y Churn</p>
   </div>
   <div class="updated" id="updatedLabel"></div>
 </header>
@@ -939,7 +939,7 @@ document.getElementById('nrrSwitch').addEventListener('click', function(){
   renderNRR();
 });
 
-document.getElementById('updatedLabel').textContent = 'Objetivo de retención actualizado: ' + (DATA.lastRefreshed ? new Date(DATA.lastRefreshed).toLocaleString('es-AR') : 's/d') + ' · resto del tablero: último dato cargado manualmente';
+document.getElementById('updatedLabel').textContent = 'Objetivo de retención actualizado: ' + (DATA.lastRefreshed ? new Date(DATA.lastRefreshed).toLocaleString('es-AR') : 's/d') + ' · resto del tablero actualizado: ' + (DATA.manualDataUpdated ? new Date(DATA.manualDataUpdated+'T00:00:00').toLocaleDateString('es-AR') : 's/d');
 
 // ---- Panel de cuentas (bloqueadas hoy / recupero de bajas) ----
 let modalAccounts = [];

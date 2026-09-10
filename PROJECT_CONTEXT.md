@@ -104,6 +104,13 @@ Secciones que siguen con el último dato cargado a mano (no automatizadas todav�
 histórico, NRR, composición, cohortes M3/M6/M12, curva de desbloqueo, N1/N2, gráfico de
 graduación, "Solicitudes de baja". Extenderlo es el mismo patrón: una función por sección.
 
+**IMPORTANTE**: cada vez que se carga/actualiza a mano alguna de estas secciones (no el
+refresh automático de retentionTarget), actualizar también `data.manualDataUpdated` con la
+fecha de ese día (formato "YYYY-MM-DD"). El pie del tablero muestra "Objetivo de retención
+actualizado: [fecha/hora de lastRefreshed] · resto del tablero actualizado: [fecha de
+manualDataUpdated]" — si no se actualiza este campo al tocar datos manuales, el pie queda
+desactualizado y deja de ser confiable.
+
 ## Qué NO hacer
 - No asumir que el pico de bloqueos es siempre el día 6 (era un supuesto incorrecto).
 - No sumar "baja confirmada" + "bloqueadas" como poblaciones separadas del total.

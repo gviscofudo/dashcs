@@ -35,6 +35,17 @@ cruzadas con fudata_v2.hubspot_accounts por engagement_executive/onboarding_exec
 - **Bajas confirmadas**: recién existen a fin de mes, de las bloqueadas que no pagaron.
   No sumar baja confirmada + bloqueadas como si fueran poblaciones separadas — las
   bloqueadas SON parte de la misma base, no se agregan aparte.
+- **"Recupero de bajas (hoy)"** (KPI de arriba, `data.recover[ejecutivo].today/yesterday` y
+  `data.accountLists.recuperoBajas`) — **IMPORTANTE, se calculó mal una vez, no repetir el
+  error**: el criterio es `commercial_status`=**DROPPED** al día 1 del mes (`cst_ms1`) Y
+  `commercial_status`=ACTIVE (con `status`!=BLOCKED) HOY — es decir, cuentas que estaban DE
+  BAJA (no sólo bloqueadas) al inicio del mes y que se reactivaron completamente. NO es lo
+  mismo que "estaba bloqueada ayer y hoy no" — esa definición (usada por error el 10/9/2026)
+  cuenta cualquier bloqueo-y-desbloqueo dentro del mes aunque la cuenta nunca haya llegado a
+  DROPPED, e infló el número de 24 a 42 cuentas. El usuario lo detectó revisando cuentas
+  puntuales del panel desplegable. Si se toca este KPI, validar de nuevo contra
+  `dropped_al_inicio_mes` (universo total de cuentas alguna vez dadas de baja por ejecutivo)
+  antes de confiar el resultado.
 - **"Cuentas faltantes para churn on target"** = bloqueadas hoy − (2% de la base).
   Si supera la cantidad de bloqueadas disponibles, el objetivo ya no es alcanzable ese mes
   aunque paguen todas — mostrarlo así, no ocultarlo.
@@ -103,3 +114,6 @@ graduación, "Solicitudes de baja". Extenderlo es el mismo patrón: una función
 - No inventar una definición nueva para "Cuentas activas (hoy)" (`activasRaw`/`activasAdj`)
   sin validarla contra `snapshot[ejecutivo].prev` — ver la nota de "Cuentas activas (hoy)"
   más arriba. La fórmula correcta usa `sales_count > 0` (raw) / `sales_count > 50` (adj).
+- No calcular "Recupero de bajas" como "bloqueada ayer, activa hoy" — tiene que ser
+  `commercial_status`=DROPPED al día 1 del mes Y activa (no bloqueada) hoy. Ver la nota de
+  "Recupero de bajas (hoy)" más arriba.

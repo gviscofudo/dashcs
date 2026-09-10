@@ -170,6 +170,18 @@
 
 <section>
   <div class="section-head">
+    <h2>Proyección: cuentas faltantes para objetivo</h2>
+    <p class="note">Estimado día a día, usando la curva de desbloqueo calibrada contra el dato real de hoy</p>
+  </div>
+  <div class="panel">
+    <div class="legend" id="projLegend"></div>
+    <div class="chart-wrap"><canvas id="projChart"></canvas></div>
+    <p class="chartdesc" id="projDesc"></p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
     <h2>Composición de cartera por plan</h2>
     <p class="note">Cuentas activas por ejecutivo, INI / PRO / ADV</p>
   </div>
@@ -811,10 +823,87 @@ function renderUnlockCurve(){
   document.getElementById('unlockDesc').textContent = (rt.unlockCurveNote||'') + '. Día +0 = pico de bloqueos (' + (rt.peakLabel||'') + '). La proyección del velocímetro usa el último punto de esta curva (fin de mes).';
 }
 
+const MONTH_ABBR = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function renderProjection(){
+  destroyChart('projChart');
+  const rt = DATA.retentionTarget;
+  if (!rt) return;
+  const curve = (rt.unlockCurve) || [];
+  if (!curve.length) return;
+  const list = selList();
+
+  // Mismos totales que "Objetivo de retención" (base fija del día 1, bloqueadas hoy, etc.)
+  let bloqueadasPico = 0, bloqueadasHoy = 0, base = 0;
+  list.forEach(e => { const p = rt.progress[e]; if (p) {
+    bloqueadasPico += p.bloqueadasPico; bloqueadasHoy += p.bloqueadasHoy; base += p.baseDia1;
+  } });
+  const allowedLossCount = base * (1 - rt.target);
+  const faltantesFn = (bloq) => Math.max(0, Math.round(bloq - allowedLossCount));
+
+  const peakDayNum = parseInt((rt.peakLabel || '').match(/\d+/)?.[0] || '1', 10);
+  const refreshDate = DATA.lastRefreshed ? new Date(DATA.lastRefreshed) : new Date();
+  const todayOffsetRaw = refreshDate.getUTCDate() - peakDayNum;
+  const todayOffset = Math.max(0, todayOffsetRaw);
+  const daysInMonth = new Date(Date.UTC(refreshDate.getUTCFullYear(), refreshDate.getUTCMonth()+1, 0)).getUTCDate();
+  const endOffset = Math.max(todayOffset, daysInMonth - peakDayNum);
+
+  // % de la cartera bloqueada que la curva histórica predice para cada offset (día desde el pico),
+  // extendiendo el último tramo observado (plateau) más allá de lo que cubre la curva.
+  const curvePctAt = (o) => {
+    if (o <= 0) return curve[0].bloqueadasPct;
+    if (o < curve.length) return curve[o].bloqueadasPct;
+    return curve[curve.length-1].bloqueadasPct;
+  };
+
+  // Calibración: reescalamos la curva promedio para que, en el offset de hoy, coincida
+  // con el dato REAL de hoy (bloqueadasHoy) en vez de usar el promedio histórico a ciegas.
+  const pctHoyCurva = curvePctAt(todayOffset);
+  const projectedHoySinCalibrar = bloqueadasPico * (pctHoyCurva/100);
+  const factor = projectedHoySinCalibrar > 0 ? (bloqueadasHoy / projectedHoySinCalibrar) : 1;
+
+  const labels = [], dataFaltantes = [], isToday = [];
+  for (let o = 0; o <= endOffset; o++){
+    const calDay = Math.min(peakDayNum + o, daysInMonth);
+    const d = new Date(Date.UTC(refreshDate.getUTCFullYear(), refreshDate.getUTCMonth(), calDay));
+    labels.push(`${calDay} ${MONTH_ABBR[d.getUTCMonth()]}`);
+    const bloqueadasEstimadas = (o === todayOffset) ? bloqueadasHoy : (bloqueadasPico * (curvePctAt(o)/100) * factor);
+    dataFaltantes.push(faltantesFn(bloqueadasEstimadas));
+    isToday.push(o === todayOffset);
+  }
+
+  document.getElementById('projLegend').innerHTML = '<span class="item"><span class="dot" style="background:#b23b3b"></span>Cuentas faltantes estimadas</span><span class="item"><span class="dot" style="background:#2a2a24"></span>Hoy (dato real)</span>';
+
+  charts.projChart = new Chart(document.getElementById('projChart'), {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Cuentas faltantes para objetivo', data:dataFaltantes, borderColor:'#b23b3b', backgroundColor:'rgba(178,59,59,0.12)', borderWidth:2, fill:true, tension:0.25,
+        pointRadius:(c)=>isToday[c.dataIndex]?5:0, pointHoverRadius:(c)=>isToday[c.dataIndex]?6:3,
+        pointBackgroundColor:(c)=>isToday[c.dataIndex]?'#2a2a24':'#b23b3b', pointBorderColor:(c)=>isToday[c.dataIndex]?'#2a2a24':'#b23b3b' }
+    ]},
+    plugins:[ChartDataLabels],
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{
+          label:(c)=>`${c.parsed.y.toLocaleString('es-AR')} cuentas faltantes${isToday[c.dataIndex]?' (dato real de hoy)':' (estimado)'}`
+        } },
+        datalabels:{ display:(c)=>isToday[c.dataIndex], anchor:'end', align:'top', offset:6, color:'#2a2a24', font:{size:11, weight:'600'},
+          formatter:(v)=>`Hoy: ${v.toLocaleString('es-AR')}` }
+      },
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:10}}, y:{beginAtZero:true, grid:{color:grid}} } }
+  });
+
+  const fechaFinCurva = labels[Math.min(curve.length-1, endOffset)];
+  document.getElementById('projDesc').textContent =
+    `Curva de desbloqueo promedio (marzo–agosto 2026) reescalada para calibrar con el dato real de hoy (${bloqueadasHoy.toLocaleString('es-AR')} bloqueadas vs. ${bloqueadasPico.toLocaleString('es-AR')} en el pico). ` +
+    `Faltantes = bloqueadas estimadas − máximo permitido (2% de la base fija). ` +
+    (endOffset >= curve.length ? `A partir del ${fechaFinCurva} se asume el mismo ritmo de recuperación que el último tramo observado históricamente (no hay más datos de la curva).` : '');
+}
+
 function renderAll(){
   if (selList().length === 0) return; // esperar a que marquen al menos uno
   renderObjetivo();
   renderUnlockCurve();
+  renderProjection();
   renderKPIs();
   renderComposition();
   renderChurnExec();

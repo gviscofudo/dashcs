@@ -264,7 +264,7 @@
 <section>
   <div class="section-head">
     <h2>Recupero de bajas</h2>
-    <p class="note">% de cuentas DROPPED al día 1 del mes que terminan ACTIVE al día 31 última hora</p>
+    <p class="note">Cantidad de cuentas DROPPED al día 1 del mes que terminan ACTIVE al día 31 última hora</p>
   </div>
   <div class="panel">
     <div class="legend" id="recLegend"></div>
@@ -435,9 +435,14 @@ function renderObjetivo(){
 function renderKPIs(){
   const list = selList();
   // Retención total (mes cerrado seleccionado con el filtro de mes de arriba)
-  let ai=0, n1=0, n2=0;
-  list.forEach(e => { const d = (DATA.n1n2m[e]||{})[selectedMonth]; if (d) { ai+=d.ai; n1+=d.n1; n2+=d.n2; } });
-  const retencion = ai ? ((n1+n2)/ai*100) : null;
+  // = 100% - churn mensual, con la MISMA fuente y fórmula que el gráfico de churn
+  // (DATA.execs[ejecutivo].months, churn = (bajas del mes - recuperadas del mes) / activas
+  // al inicio del mes, ya validada contra medición manual) — así siempre coincide con el
+  // gráfico de churn del mismo mes. DATA.execs no tiene ago/sep 2025 todavía, así que para
+  // esos dos meses queda "s/d" (igual que el propio gráfico de churn).
+  let ai=0, churn=0;
+  list.forEach(e => { const d = (DATA.execs[e].months||{})[selectedMonth]; if (d) { ai+=d.ai; churn+=d.churn; } });
+  const retencion = ai ? (100 - (churn/ai*100)) : null;
 
   // NRR promedio (promedio simple del NRR mensual a lo largo de todo el histórico mostrado, Oct 25-Ago 26)
   const nrrMonthly = MONTHS_END.map(mo => {
@@ -758,31 +763,31 @@ function renderN1N2(){
 function renderRecupero(){
   destroyChart('recChart');
   const list = selList();
-  document.getElementById('recLegend').innerHTML = '<span class="item"><span class="dot" style="background:#1baf7a"></span>Recupero de bajas</span>';
-  const droppedArr = [], recArr = [];
+  document.getElementById('recLegend').innerHTML = '<span class="item"><span class="dot" style="background:#1baf7a"></span>Cuentas recuperadas</span>';
+  const droppedArr = [];
   const data = MONTHS_END.map(mo => {
     let dropped=0, rec=0;
     list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { dropped+=d.dropped; rec+=d.rec; } });
-    droppedArr.push(dropped||null); recArr.push(dropped ? rec : null);
-    return dropped ? (rec/dropped*100) : null;
+    droppedArr.push(dropped||null);
+    return dropped ? rec : null;
   });
   charts.recChart = new Chart(document.getElementById('recChart'), {
     type:'bar',
     data:{ labels:MONTHS_LABEL, datasets:[
-      { label:'Recupero de bajas', data, backgroundColor:'#1baf7a', borderRadius:3 }
+      { label:'Cuentas recuperadas', data, backgroundColor:'#1baf7a', borderRadius:3 }
     ]},
     plugins:[ChartDataLabels],
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false},
         tooltip:{ callbacks:{
-          label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d'),
-          afterLabel:(c)=>{ const dropped=droppedArr[c.dataIndex], rec=recArr[c.dataIndex];
-            return (dropped!=null && rec!=null) ? `${rec} de ${dropped} cuentas` : ''; }
+          label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toLocaleString('es-AR'):'s/d'),
+          afterLabel:(c)=>{ const dropped=droppedArr[c.dataIndex], rec=c.parsed.y;
+            return (dropped!=null && rec!=null) ? `${((rec/dropped)*100).toFixed(2)}% de ${dropped} dadas de baja` : ''; }
         } },
-        datalabels:{ display:(c)=>recArr[c.dataIndex]!=null, anchor:'end', align:'top', offset:2,
-          color:'#5b6058', font:{size:9.5}, formatter:(v,c)=>`${recArr[c.dataIndex]}/${droppedArr[c.dataIndex]}` }
+        datalabels:{ display:(c)=>data[c.dataIndex]!=null, anchor:'end', align:'top', offset:2,
+          color:'#5b6058', font:{size:9.5}, formatter:(v)=>v.toLocaleString('es-AR') }
       },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
+      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}} } }
   });
 }
 

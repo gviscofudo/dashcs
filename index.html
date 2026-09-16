@@ -159,6 +159,12 @@
   <select class="dropdown-btn" id="monthSelect" style="appearance:none; -webkit-appearance:none; cursor:pointer;"></select>
 </div>
 
+<div class="switch-wrap" style="margin-left:14px;" title="Aplica a los KPI de arriba, el objetivo de retención y los paneles de cuentas. El resto del tablero (churn histórico, NRR, composición, cohortes, N1/N2, curva de desbloqueo) no distingue por ventas.">
+  <span id="salesFilterLabelAll">Todas las cuentas</span>
+  <div class="switch" id="salesFilterSwitch"><div class="knob"></div></div>
+  <span id="salesFilterLabelAdj">+50 ventas</span>
+</div>
+
 <div class="kpis" id="kpiRow"></div>
 
 <div class="objetivo" id="objetivoBox"></div>
@@ -295,6 +301,20 @@ let selectedExecs = new Set(DATA.allExecs);
 let churnByExec = false;
 let nrrByExec = false;
 let selectedMonth = MONTHS_END[MONTHS_END.length - 1];
+// Filtro de ventas: 'all' = todas las cuentas, 'adj' = sólo cuentas con sales_count > 50.
+// Afecta los KPI de arriba, el objetivo de retención y los paneles de cuentas (todo lo que
+// se recalcula en vivo desde Metabase). El resto del tablero (churn histórico, NRR,
+// composición, cohortes, N1/N2, curva de desbloqueo) es dato cargado a mano y no distingue
+// por ventas, así que no cambia con este switch.
+let salesView = 'all';
+// campos "base" (baseDia1, baseMismoDiaMesAnterior): el dato sin sufijo YA es la versión +50
+// ventas (es la base de negocio original); la versión "todas las cuentas" vive en el campo
+// con sufijo "All".
+function baseField(name){ return salesView === 'all' ? name + 'All' : name; }
+// campos de "actividad" (bloqueadas*, dropped*, recuperadas*, yaCayeron*): el dato sin
+// sufijo YA es la versión "todas las cuentas"; la versión +50 ventas vive en el campo con
+// sufijo "Adj".
+function actField(name){ return salesView === 'adj' ? name + 'Adj' : name; }
 function monthLabelFor(mo){ const i = MONTHS_END.indexOf(mo); return i >= 0 ? MONTHS_LABEL[i] : mo; }
 
 function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
@@ -354,11 +374,11 @@ function renderObjetivo(){
   let bloqueadasHoy = 0, bloqueadasAyer = 0, droppedAyer = 0, base = 0;
   let baseMismoDiaMesAnterior = 0, bloqueadasMismoDiaMesAnterior = 0;
   list.forEach(e => { const p = rt.progress[e]; if (p) {
-    bloqueadasPico += p.bloqueadasPico; recuperadasDesdePico += p.recuperadasDesdePico;
-    siguenBloqueadas += p.siguenBloqueadas; yaCayeronDePico += p.yaCayeronDePico; droppedYa += p.droppedYa;
-    bloqueadasHoy += p.bloqueadasHoy; bloqueadasAyer += p.bloqueadasAyer; droppedAyer += p.droppedAyer;
-    base += p.baseDia1;
-    baseMismoDiaMesAnterior += p.baseMismoDiaMesAnterior; bloqueadasMismoDiaMesAnterior += p.bloqueadasMismoDiaMesAnterior;
+    bloqueadasPico += p[actField('bloqueadasPico')]; recuperadasDesdePico += p[actField('recuperadasDesdePico')];
+    siguenBloqueadas += p[actField('siguenBloqueadas')]; yaCayeronDePico += p[actField('yaCayeronDePico')]; droppedYa += p[actField('droppedYa')];
+    bloqueadasHoy += p[actField('bloqueadasHoy')]; bloqueadasAyer += p[actField('bloqueadasAyer')]; droppedAyer += p[actField('droppedAyer')];
+    base += p[baseField('baseDia1')];
+    baseMismoDiaMesAnterior += p[baseField('baseMismoDiaMesAnterior')]; bloqueadasMismoDiaMesAnterior += p[actField('bloqueadasMismoDiaMesAnterior')];
   } });
   const target = rt.target;
   const allowedLossPct = (1 - target) * 100; // 2.0
@@ -396,6 +416,7 @@ function renderObjetivo(){
     <div class="objetivo-head">
       <span class="label">Objetivo de retención (meta ${(target*100).toFixed(0)}%)
         <span class="info-btn" id="infoBtnObjetivo">i</span>
+        <span style="font-weight:400; color:var(--ink-soft); font-size:12.5px;">(${salesView==='adj'?'+50 ventas':'todas las cuentas'})</span>
       </span>
       <span class="pct" style="color:${confirmedColor}">${confirmedLossPct.toFixed(2)}% posibles bajas <span style="font-size:14.5px; font-weight:500;">${deltaConfirmedPct===0?'— sin cambios':(deltaConfirmedPct>0?'▲ +'+deltaConfirmedPct.toFixed(2)+'pp':'▼ '+deltaConfirmedPct.toFixed(2)+'pp')} vs. ayer</span></span>
     </div>
@@ -464,30 +485,36 @@ function renderKPIs(){
   const nrrDeltaPP = (nrrLast !== null && nrrPrevM !== null) ? (nrrLast - nrrPrevM) : null;
 
   // Cuentas activas ajustadas hoy vs mismo día mes anterior
+  // activasRaw = todas las cuentas (sales_count > 0) · activasAdj = sólo +50 ventas
+  const activasKey = salesView === 'adj' ? 'activasAdj' : 'activasRaw';
+  const bloqSnapKey = actField('bloqueadas'); // 'bloqueadas' (todas) o 'bloqueadasAdj' (+50)
   let actToday=0, actPrev=0, blkToday=0, blkPrev=0;
   list.forEach(e => {
     const s = DATA.snapshot[e];
     if (s) {
-      actToday += s.today ? s.today.activasAdj : 0;
-      actPrev  += s.prev  ? s.prev.activasAdj  : 0;
-      blkToday += s.today ? s.today.bloqueadas : 0;
-      blkPrev  += s.prev  ? s.prev.bloqueadas  : 0;
+      actToday += s.today ? s.today[activasKey] : 0;
+      actPrev  += s.prev  ? s.prev[activasKey]  : 0;
+      blkToday += s.today ? s.today[bloqSnapKey] : 0;
+      blkPrev  += s.prev  ? s.prev[bloqSnapKey]  : 0;
     }
   });
   const actDeltaPct = actPrev ? ((actToday-actPrev)/actPrev*100) : null;
   const blkDeltaPct = blkPrev ? ((blkToday-blkPrev)/blkPrev*100) : null;
 
   // Recupero de bajas hoy vs ayer
+  const recTodayKey = salesView === 'adj' ? 'todayAdj' : 'today';
+  const recYestKey = salesView === 'adj' ? 'yesterdayAdj' : 'yesterday';
   let recToday=0, recYesterday=0;
   list.forEach(e => {
     const r = DATA.recover[e];
-    if (r) { recToday += r.today||0; recYesterday += r.yesterday||0; }
+    if (r) { recToday += r[recTodayKey]||0; recYesterday += r[recYestKey]||0; }
   });
   const recDelta = recToday - recYesterday;
 
-  // Bloqueadas con intento de login reciente (≤7 días)
+  // Bloqueadas con intento de login reciente (≤7 días) — filtra por el mismo criterio de ventas
   const loginByExec = (DATA.accountLists && DATA.accountLists.bloqueadasConLogin) || {};
-  const bloqueadasConLoginCount = list.reduce((sum,e) => sum + ((loginByExec[e]||[]).length), 0);
+  const matchesSalesView = (acc) => salesView === 'adj' ? acc.s === true : true;
+  const bloqueadasConLoginCount = list.reduce((sum,e) => sum + ((loginByExec[e]||[]).filter(matchesSalesView).length), 0);
 
   // Solicita baja este mes
   let solBaja = 0;
@@ -514,6 +541,7 @@ function renderKPIs(){
     return `<div class="delta ${cls}">${arrow} ${deltaPP>0?'+':''}${deltaPP.toFixed(1)}pp ${suffix}</div>`;
   };
 
+  const svTag = ` <span style="font-weight:400; color:var(--ink-soft); font-size:11.5px;">(${salesView==='adj'?'+50 ventas':'todas las cuentas'})</span>`;
   document.getElementById('kpiRow').innerHTML = `
     <div class="kpi">
       <div class="label">Retención total cartera (${monthLabelFor(selectedMonth).toLowerCase()}, cerrado)</div>
@@ -530,24 +558,24 @@ function renderKPIs(){
       <div class="footnote">Promedio simple del NRR mensual general en todo el histórico del tablero.</div>
     </div>
     <div class="kpi">
-      <div class="label">Cuentas activas (hoy)</div>
+      <div class="label">Cuentas activas (hoy)${svTag}</div>
       <div class="value">${actToday.toLocaleString('es-AR')}</div>
       ${arrowHTML(actDeltaPct, true, 'vs. mismo día mes anterior')}
       <div class="footnote">Retenidas del mes anterior + clientes existentes reactivados. Excluye altas nuevas, bloqueadas y bajas del mes.</div>
     </div>
     <div class="kpi clickable" id="kpiBloqueadasHoy">
-      <div class="label">Cuentas bloqueadas (hoy)</div>
+      <div class="label">Cuentas bloqueadas (hoy)${svTag}</div>
       <div class="value">${blkToday.toLocaleString('es-AR')}</div>
       ${arrowHTML(blkDeltaPct, false, 'vs. mismo día mes anterior')}
     </div>
     <div class="kpi clickable" id="kpiRecuperoBajas">
-      <div class="label">Recupero de bajas (hoy)</div>
+      <div class="label">Recupero de bajas (hoy)${svTag}</div>
       <div class="value">${recToday.toLocaleString('es-AR')}</div>
       ${arrowCount(recDelta, true, 'vs. ayer')}
       <div class="footnote">Cuentas de baja al inicio del mes que ahora están activas.</div>
     </div>
     <div class="kpi clickable" id="kpiBloqueadasConLogin">
-      <div class="label">Bloqueadas con intento de login (≤7 días)</div>
+      <div class="label">Bloqueadas con intento de login (≤7 días)${svTag}</div>
       <div class="value">${bloqueadasConLoginCount.toLocaleString('es-AR')}</div>
       <div class="footnote">Estado comercial activo, Dash bloqueado, con login en los últimos 7 días — señal de que quieren volver.</div>
     </div>
@@ -938,17 +966,31 @@ document.getElementById('nrrSwitch').addEventListener('click', function(){
   this.classList.toggle('on', nrrByExec);
   renderNRR();
 });
+document.getElementById('salesFilterSwitch').addEventListener('click', function(){
+  salesView = (salesView === 'adj') ? 'all' : 'adj';
+  this.classList.toggle('on', salesView === 'adj');
+  document.getElementById('salesFilterLabelAll').style.fontWeight = salesView === 'adj' ? '400' : '600';
+  document.getElementById('salesFilterLabelAdj').style.fontWeight = salesView === 'adj' ? '600' : '400';
+  renderObjetivo();
+  renderKPIs();
+  if (modalOpenState) openAccountModal(modalOpenState.title, modalOpenState.key);
+});
+document.getElementById('salesFilterLabelAll').style.fontWeight = '600';
 
 document.getElementById('updatedLabel').textContent = 'Objetivo de retención actualizado: ' + (DATA.lastRefreshed ? new Date(DATA.lastRefreshed).toLocaleString('es-AR') : 's/d') + ' · resto del tablero actualizado: ' + (DATA.manualDataUpdated ? new Date(DATA.manualDataUpdated+'T00:00:00').toLocaleDateString('es-AR') : 's/d');
 
 // ---- Panel de cuentas (bloqueadas hoy / recupero de bajas) ----
 let modalAccounts = [];
+let modalOpenState = null; // { title, key } — para poder refrescar si se toca el switch de ventas con el panel abierto
 function openAccountModal(title, key){
+  modalOpenState = { title, key };
   const byExec = (DATA.accountLists && DATA.accountLists[key]) || {};
   const list = selList();
+  // "s" = true cuando la cuenta tiene sales_count > 50. En modo "+50 ventas" filtramos a esas
+  // cuentas; en modo "todas las cuentas" se muestran todas, tengan o no el flag.
   modalAccounts = [];
   list.forEach(e => {
-    (byExec[e] || []).forEach(a => modalAccounts.push({ n: a.n, u: a.u, e, l: a.l }));
+    (byExec[e] || []).forEach(a => { if (salesView !== 'adj' || a.s === true) modalAccounts.push({ n: a.n, u: a.u, e, l: a.l }); });
   });
   const hasLoginDates = modalAccounts.some(a => a.l);
   if (hasLoginDates) {
@@ -962,8 +1004,10 @@ function openAccountModal(title, key){
   document.getElementById('accountModalOverlay').classList.add('open');
   document.getElementById('accountModalSearch').focus();
 }
+function closeAccountModalState(){ modalOpenState = null; }
 function closeAccountModal(){
   document.getElementById('accountModalOverlay').classList.remove('open');
+  closeAccountModalState();
 }
 function renderModalList(filterText){
   const q = filterText.trim().toLowerCase();

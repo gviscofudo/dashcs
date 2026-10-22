@@ -1,1052 +1,957 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Customer Success Argentina</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central de llamados – Fudo CS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#f6f5f1; --panel:#ffffff; --ink:#1f2320; --ink-soft:#5b6058;
-    --line:#e4e2da; --accent:#2f6f5e; --accent-soft:#e4efec;
-    --amber:#b3781c; --amber-soft:#f7edd9; --red:#b23b3b; --green:#2f6f5e;
+:root{
+  --bg:#F5F5F6; --surface:#FFFFFF; --surface-2:#FAFAFA; --ink:#2B2B2B; --ink-2:#555559; --ink-3:#8A8A90;
+  --line:#E6E6E9; --brand:#F26B21; --brand-ink:#FFFFFF; --brand-soft:#FFF0E6; --brand-dark:#D4561A; --head:#2B2B2B;
+  --s-pend:#9AA4B8; --s-sin:#E0A21B; --s-seg:#3C7DE0; --s-acep:#1C9A6B; --s-rech:#D2493F; --s-reg:#6A4BC4; --s-err:#5E6676;
+  --focus:#F26B21;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161616; --surface:#202020; --surface-2:#262626; --ink:#F1F1F1; --ink-2:#BDBDC2; --ink-3:#8C8C92;
+    --line:#333336; --brand:#FF7A33; --brand-ink:#1A1A1A; --brand-soft:#3A2618; --brand-dark:#FF9152; --head:#0E0E0E;
+    --s-pend:#5F5F66; --focus:#FF7A33; color-scheme: dark;
   }
-  *{box-sizing:border-box;}
-  body{ margin:0; background:var(--bg); color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    padding:32px 40px 64px; }
-  header{margin-bottom:20px; border-bottom:1px solid var(--line); padding-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;}
-  h1{font-size:25px; font-weight:600; margin:0 0 4px; letter-spacing:-0.01em;}
-  .sub{color:var(--ink-soft); font-size:16px; margin:0;}
-  .updated{font-size:14px; color:var(--ink-soft);}
+}
+:root[data-theme="dark"]{
+  --bg:#161616; --surface:#202020; --surface-2:#262626; --ink:#F1F1F1; --ink-2:#BDBDC2; --ink-3:#8C8C92;
+  --line:#333336; --brand:#FF7A33; --brand-ink:#1A1A1A; --brand-soft:#3A2618; --brand-dark:#FF9152; --head:#0E0E0E;
+  --s-pend:#5F5F66; --focus:#FF7A33; color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1320px;margin:0 auto;padding:20px 20px 40px}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;margin:0 0 18px;background:var(--head);color:#fff;border-radius:14px;padding:18px 20px;border-bottom:4px solid var(--brand)}
+h1{font-size:26px;line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+.sub{color:#D6D6DA;margin:4px 0 0;font-size:14px}
+header.top .btn{background:transparent;color:#fff;border-color:#5A5A5E}
+header.top .btn:hover{border-color:#fff}
+header.top .btn.primary{background:var(--brand);border-color:var(--brand)}
+.fresh{color:#BDBDC2!important}
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.primary:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
+.btn:disabled{opacity:.5;cursor:default}
+.fresh{color:var(--ink-3);font-size:13px}
 
-  .dropdown{position:relative; display:inline-block; margin-bottom:20px;}
-  .dropdown-btn{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 16px; font:inherit; font-size:15px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:8px; min-width:260px; justify-content:space-between;}
-  .dropdown-btn:after{content:'▾'; color:var(--ink-soft); font-size:12px;}
-  .dropdown-panel{position:absolute; top:calc(100% + 6px); left:0; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,.08); z-index:20; min-width:280px; display:none;}
-  .dropdown-panel.open{display:block;}
-  .dropdown-panel .grouplabel{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:10px 0 6px;}
-  .dropdown-panel .grouplabel:first-child{margin-top:0;}
-  .execchk{display:flex; align-items:center; gap:7px; font-size:15px; cursor:pointer; user-select:none; padding:4px 0;}
-  .execchk input{accent-color:var(--accent); width:15px; height:15px; cursor:pointer;}
-  .dropdown-actions{display:flex; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
-  .dropdown-actions button{background:none; border:none; color:var(--accent); font-size:14px; font-weight:500; cursor:pointer; padding:0;}
+/* Campaign strip: the one bold element */
+.strip-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.strip-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.strip-total{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.strip-total small{font-size:15px;font-weight:500;color:var(--ink-2);margin-left:8px;letter-spacing:0}
+.coverage{font-weight:600;color:var(--ink-2)}
+.strip{display:flex;height:18px;border-radius:6px;overflow:hidden;background:var(--surface-2)}
+.strip span{display:block;height:100%;transition:width .4s ease}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13.5px;cursor:pointer;font-weight:500}
+.chip .dot{width:9px;height:9px;border-radius:50%}
+.chip b{font-weight:700}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 
-  .callout{background:var(--amber-soft); border:1px solid #e9d4a4; color:#5c4419; border-radius:8px; padding:12px 16px; font-size:15px; line-height:1.5; margin-bottom:24px;}
-  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:32px;}
-  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
-  .kpi .label{font-size:13.5px; color:var(--ink-soft); margin-bottom:6px;}
-  .kpi .value{font-size:29px; font-weight:600; line-height:1.1;}
-  .kpi .delta{font-size:14px; margin-top:6px; display:flex; align-items:center; gap:4px;}
-  .kpi .delta.up{color:var(--green);}
-  .kpi .delta.down{color:var(--red);}
-  .kpi .deltasub{font-size:13px; color:var(--ink-soft); margin-top:2px;}
-  .kpi .footnote{font-size:12px; color:var(--ink-soft); margin-top:6px; line-height:1.3;}
-  section{margin-bottom:36px;}
-  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
-  h2{font-size:17px; font-weight:600; margin:0;}
-  .note{font-size:13.5px; color:var(--ink-soft); margin:0;}
-  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px;}
-  .legend{display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:13.5px; color:var(--ink-soft);}
-  .legend span.item{display:flex; align-items:center; gap:5px;}
-  .dot{display:inline-block; width:9px; height:9px; border-radius:2px;}
-  .chart-wrap{position:relative; width:100%; height:260px;}
-  .chart-wrap-sm{height:130px;}
-  .mini-details{margin-top:16px; border-top:1px solid var(--line); padding-top:12px;}
-  .mini-details summary{cursor:pointer; font-size:13px; color:var(--ink-soft); list-style:none; display:flex; align-items:center; gap:6px; user-select:none;}
-  .mini-details summary::-webkit-details-marker{display:none;}
-  .mini-details summary:before{content:'▸'; font-size:11px; transition:transform .15s;}
-  .mini-details[open] summary:before{content:'▾';}
-  .mini-details .legend, .mini-details .chart-wrap{margin-top:10px;}
-  .chartdesc{font-size:13.5px; color:var(--ink-soft); margin:10px 0 0;}
-  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-  @media (max-width:820px){ .grid-2{grid-template-columns:1fr;} body{padding:20px;} }
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.filters label{font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px}
+.filters select,.filters input{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:180px}
+.filters input[type=search]{min-width:240px}
 
-  .switch-wrap{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-soft);}
-  .switch{position:relative; width:38px; height:20px; background:var(--line); border-radius:10px; cursor:pointer; flex-shrink:0;}
-  .switch .knob{position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 2px rgba(0,0,0,.2);}
-  .switch.on{background:var(--accent);}
-  .switch.on .knob{left:20px;}
+.tablebox{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{font-size:12.5px;font-weight:600;color:var(--ink-3);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr.sel{background:var(--brand-soft)}
+.acc-name{font-weight:600}
+.acc-id{color:var(--ink-3);font-size:12.5px}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.muted{color:var(--ink-3)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap}
+.badge .dot{width:8px;height:8px;border-radius:50%}
+.days-hot{color:var(--s-acep);font-weight:600}
+.days-cold{color:var(--s-rech)}
+.empty{padding:40px 20px;text-align:center;color:var(--ink-2)}
+.banner{border:1px solid var(--line);border-left:4px solid var(--s-sin);background:var(--surface);padding:12px 14px;border-radius:8px;margin-bottom:12px}
+.banner.err{border-left-color:var(--s-rech)}
+.skeleton{height:14px;border-radius:4px;background:linear-gradient(90deg,var(--surface-2),var(--line),var(--surface-2));background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion: reduce){.skeleton{animation:none}.strip span{transition:none}.drawer{transition:none}}
 
-  .objetivo{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:20px;}
-  .objetivo-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
-  .objetivo-head .label{font-size:15px; font-weight:600;}
-  .objetivo-head .pct{font-size:24px; font-weight:700;}
-  .objetivo-bar-track{position:relative; width:100%; height:22px; border-radius:6px; overflow:visible; margin-bottom:26px;}
-  .objetivo-pointer{position:absolute; top:-10px; width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-top:10px solid var(--ink); transform:translateX(-50%);}
-  .objetivo-marker{position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); opacity:.55;}
-  .objetivo-marker .tag{position:absolute; top:100%; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ink); white-space:nowrap; margin-top:4px; font-weight:600;}
-  .objetivo-scale{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-top:-16px; margin-bottom:8px;}
-  .objetivo-sub{display:flex; justify-content:space-between; font-size:13px; color:var(--ink-soft); margin-top:6px; flex-wrap:wrap; gap:4px;}
-  .objetivo-grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
-  @media (max-width:820px){ .objetivo-grid2{grid-template-columns:1fr;} }
-  .resolution-bar{display:flex; width:100%; height:26px; border-radius:6px; overflow:hidden; margin:8px 0 6px;}
-  .resolution-seg{height:100%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden;}
-  .resolution-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--ink-soft); margin-bottom:2px;}
-  .resolution-legend .item{display:flex; align-items:center; gap:5px;}
-  .gauge-wrap{display:flex; flex-direction:column; align-items:center; padding-top:2px;}
-  .gauge-label{font-size:12.5px; color:var(--ink-soft); text-align:center; margin-top:4px; line-height:1.35;}
-  .gauge-value{font-size:22px; font-weight:700; margin-top:2px;}
+/* Drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,16,30,.35);opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--surface);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
+.drawer.open{transform:none}
+.d-head{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.d-head h2{margin:0;font-size:22px;line-height:1.15;letter-spacing:-.01em}
+.d-head .acc-id{margin-top:3px}
+.x{border:0;background:transparent;font-size:24px;line-height:1;cursor:pointer;color:var(--ink-2);padding:4px 8px;border-radius:6px}
+.d-body{overflow-y:auto;padding:16px 20px 28px;flex:1}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.fact{background:var(--surface);padding:10px 12px}
+.fact .k{font-size:12px;color:var(--ink-3)}
+.fact .v{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;word-break:break-word}
+.fact .v.small{font-size:13.5px;font-weight:600}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.links a{font-size:13.5px;font-weight:600;color:var(--brand-dark);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.links a:hover{border-color:var(--brand)}
+h3{font-size:15px;margin:22px 0 10px;font-weight:700}
+.contact{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.contact .who{min-width:0}
+.contact .nm{font-weight:600}
+.contact .ph{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:13.5px}
+.contact .ic{font-size:12.5px;color:var(--ink-3)}
+.call-actions{display:flex;gap:6px;align-items:center}
+.call{display:inline-flex;align-items:center;gap:6px;background:var(--brand);color:var(--brand-ink);border-radius:999px;padding:8px 12px;font-weight:700;text-decoration:none;font-size:14px;border:0;cursor:pointer}
+.call.wait{opacity:.6}
+.mini{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 9px;font-size:13px;cursor:pointer;text-decoration:none;color:var(--ink)}
 
-  .info-btn{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--ink-soft); font-size:12.5px; font-weight:700; cursor:pointer; margin-left:6px; flex-shrink:0;}
-  .info-panel{display:none; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin:8px 0 14px; line-height:1.5;}
-  .info-panel.open{display:block;}
-  .big-kpi{background:var(--accent-soft); border:1px solid #c9ddd6; border-radius:10px; padding:16px 18px; margin-bottom:14px;}
-  .big-kpi .label{font-size:14px; color:var(--ink-soft); margin-bottom:4px;}
-  .big-kpi .value{font-size:35px; font-weight:700; line-height:1.1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
-  .big-kpi .delta{font-size:14.5px; font-weight:500;}
-  .big-kpi .delta.up{color:var(--red);}
-  .big-kpi .delta.down{color:var(--green);}
+form.log{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface-2)}
+.field{margin-bottom:12px}
+.field>.lbl{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts input{position:absolute;opacity:0;pointer-events:none}
+.opts label{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 11px;font-size:13.5px;cursor:pointer}
+.opts input:checked+label{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.opts input:focus-visible+label{outline:2px solid var(--focus);outline-offset:2px}
+form.log select,form.log input[type=date],form.log textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+form.log textarea{min-height:70px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:4px}
+.attempt{font-size:13px;color:var(--ink-2)}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{border-left:2px solid var(--line);padding:2px 0 14px 14px;position:relative}
+.hist li::before{content:"";position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--c,var(--s-pend));border:2px solid var(--surface)}
+.hist .when{font-size:12.5px;color:var(--ink-3)}
+.hist .what{font-weight:600}
+.hist .note{color:var(--ink-2);white-space:pre-wrap}
+.hs{font-size:12.5px;margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hs.ok{color:var(--s-acep)}.hs.err{color:var(--s-rech)}.hs.wait{color:var(--ink-3)}
+.hs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12.5px;cursor:pointer}
+.sync{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);margin:2px 0 12px}
+.sync input{accent-color:var(--brand);margin-top:3px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.toast.show{opacity:1}
+.ro{font-size:13px;color:var(--ink-2);margin:0 0 10px}
+@media (max-width:640px){
+  .wrap{padding:14px 12px 30px}
+  h1{font-size:23px}
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .row2{grid-template-columns:1fr}
+  .filters select,.filters input,.filters input[type=search]{min-width:0;width:100%}
+  .filters label{flex:1 1 140px}
+}
 
-  .kpi.clickable{cursor:pointer; transition:border-color .12s, box-shadow .12s;}
-  .kpi.clickable:hover{border-color:var(--accent); box-shadow:0 2px 10px rgba(0,0,0,.06);}
-  .kpi.clickable .label{display:flex; align-items:center; gap:5px;}
-  .kpi.clickable .label:after{content:'→'; font-size:12px; color:var(--ink-soft);}
+.login{max-width:440px;margin:12vh auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:32px 28px;text-align:center;border-top:4px solid var(--brand)}
+.login h1{color:var(--ink);margin-bottom:6px}
+.login p{color:var(--ink-2);margin:0 0 22px}
+.gbtn{display:inline-flex;align-items:center;gap:10px;background:var(--brand);color:var(--brand-ink);border:0;border-radius:999px;padding:12px 22px;font-weight:600;cursor:pointer;font-size:15px}
+.gbtn:hover{background:var(--brand-dark)}
+.who-me{color:#D6D6DA;font-size:13px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
+.modal.open{display:flex}
+.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:14px;width:min(560px,100%);max-height:85vh;overflow:auto;padding:20px}
+.modal h2{margin:0 0 6px;font-size:20px}
+.team-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.team-add{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.team-add #tAdd{grid-column:1/-1}
+.pw-row{display:flex;gap:6px}.pw-row input{flex:1;min-width:0}
+.team-add input,.team-add select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+@media (max-width:640px){.team-add{grid-template-columns:1fr}}
+.modal{background:rgba(10,10,10,.4)}
 
-  .modal-overlay{display:none; position:fixed; inset:0; background:rgba(20,22,19,.4); z-index:100; align-items:flex-start; justify-content:center; padding:60px 20px;}
-  .modal-overlay.open{display:flex;}
-  .modal-panel{position:relative; background:var(--panel); border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.25); width:100%; max-width:460px; max-height:78vh; display:flex; flex-direction:column; overflow:hidden;}
-  .modal-head{padding:16px 38px 12px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
-  .modal-head .title{font-size:15.5px; font-weight:600;}
-  .modal-head .count{font-size:13px; color:var(--ink-soft);}
-  .modal-close{position:absolute; top:12px; right:14px; z-index:1; background:none; border:none; font-size:20px; line-height:1; color:var(--ink-soft); cursor:pointer; padding:4px 6px;}
-  .modal-search{padding:12px 20px;}
-  .modal-search input{width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:14px; background:var(--bg);}
-  .modal-search input:focus{outline:none; border-color:var(--accent);}
-  .modal-list{overflow-y:auto; padding:4px 10px 14px; flex:1;}
-  .modal-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 10px; border-radius:7px; text-decoration:none; color:var(--ink); font-size:14px;}
-  .modal-row:hover{background:var(--accent-soft);}
-  .modal-row .execname{font-size:11.5px; color:var(--ink-soft); white-space:nowrap;}
-  .modal-empty{padding:24px 20px; text-align:center; color:var(--ink-soft); font-size:14px;}
+.login-form{display:flex;flex-direction:column;gap:6px;text-align:left}
+.login-form .lbl{font-size:13px;font-weight:600;color:var(--ink-2)}
+.login-form input{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.login-form .gbtn{justify-content:center;margin-top:6px}
+.login-err{color:var(--s-rech);min-height:1.2em;margin:8px 0 0!important;font-size:14px}
+.team-row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+.tabs{display:flex;gap:6px;margin:0 0 14px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .k{font-size:12.5px;color:var(--ink-3)}
+.kpi .v{font-size:26px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12.5px;color:var(--ink-2)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;min-width:0}
+.card h3{margin:0 0 2px}
+.cap{margin:0 0 12px;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid2 .card{margin-bottom:14px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.hrow{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;padding:6px 0;font-size:13.5px}
+.hrow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.hrow .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.hbar{display:flex;height:16px;border-radius:5px;overflow:hidden;background:var(--surface-2)}
+.hbar span{display:block;height:100%}
+.acttable{width:100%;min-width:0;border-collapse:collapse;font-size:13.5px}
+.acttable th,.acttable td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;background:none}
+.acttable th:first-child,.acttable td:first-child{text-align:left}
+.acttable td .mb{display:inline-block;height:8px;border-radius:4px;background:var(--brand);vertical-align:middle;margin-left:6px}
+.cols{display:flex;align-items:flex-end;gap:6px;height:170px;padding-top:18px;overflow-x:auto}
+.col{flex:1 0 28px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.col .stack{width:100%;max-width:38px;display:flex;flex-direction:column-reverse;border-radius:5px 5px 0 0;overflow:hidden}
+.col .n{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.col .d{font-size:11px;color:var(--ink-3);white-space:nowrap}
+.empty-ch{color:var(--ink-3);font-size:13.5px;padding:10px 0}
+@media (max-width:640px){.hrow{grid-template-columns:100px 1fr 56px}}
+
+.menu-wrap{position:relative}
+.hamb{display:inline-flex;align-items:center;gap:10px;background:transparent;color:#fff;border:1px solid #5A5A5E;border-radius:999px;padding:7px 14px 7px 12px;cursor:pointer;font-weight:600}
+.hamb:hover,.hamb[aria-expanded="true"]{border-color:#fff}
+.bars{display:inline-flex;flex-direction:column;gap:3px}
+.bars i{display:block;width:16px;height:2px;border-radius:2px;background:currentColor}
+.menu{position:absolute;right:0;top:calc(100% + 8px);min-width:240px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;z-index:15}
+.menu-head{display:flex;flex-direction:column;padding:8px 10px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px}
+.menu-head span{color:var(--ink-3);overflow:hidden;text-overflow:ellipsis}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer;font-weight:500;font-size:14px}
+.menu button:hover,.menu button:focus-visible{background:var(--brand-soft)}
+.menu button:disabled{opacity:.5;cursor:default}
+.menu-sep{height:1px;background:var(--line);margin:4px 0}
+@media (max-width:640px){.hamb-name{display:none}}
+.sus{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:13px;font-weight:700;margin-top:8px}
+.sus::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.sus.si{background:#E3F5EC;color:#137A53}
+.sus.no{background:#FDECEA;color:#B23B32}
+.sus.nd{background:var(--surface-2);color:var(--ink-3)}
+:root[data-theme="dark"] .sus.si{background:#123526;color:#5FD3A2}
+:root[data-theme="dark"] .sus.no{background:#3A1A17;color:#FF8F85}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sus.si{background:#123526;color:#5FD3A2}:root:not([data-theme="light"]) .sus.no{background:#3A1A17;color:#FF8F85}}
+.tag-sus{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:#137A53;background:#E3F5EC;border-radius:999px;padding:1px 7px;vertical-align:middle}
+tbody td span[class=""],tbody td .days-hot,tbody td .days-cold,tbody td .muted{white-space:nowrap}
+
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.tb-search{position:relative;flex:1 1 280px;min-width:200px;color:var(--ink-3)}
+.tb-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none}
+.tb-search input{width:100%;height:40px;border:1px solid transparent;background:var(--surface-2);border-radius:10px;padding:0 12px 0 38px;color:var(--ink);font-size:14px;transition:border-color .15s,box-shadow .15s,background .15s}
+.tb-search input:hover{border-color:var(--line)}
+.tb-search input:focus{outline:none;background:var(--surface);border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.pill-select{position:relative;display:inline-flex;align-items:center;gap:6px;height:40px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 30px 0 12px;cursor:pointer;transition:border-color .15s,background .15s;color:var(--ink-2)}
+.pill-select:hover{border-color:var(--ink-3)}
+.pill-select::after{content:"";position:absolute;right:12px;top:50%;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg);pointer-events:none;opacity:.6}
+.pill-select .pl{font-size:13px;color:var(--ink-3);white-space:nowrap}
+.pill-select select{appearance:none;-webkit-appearance:none;border:0;background:transparent;font-weight:600;font-size:14px;color:var(--ink);cursor:pointer;padding:0;max-width:220px;text-overflow:ellipsis}
+.pill-select select:focus{outline:none}
+.pill-select:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.pill-select.on{border-color:var(--brand);background:var(--brand-soft)}
+.pill-select.on .pl,.pill-select.on::after{color:var(--brand-dark)}
+.pill-select.sort svg{color:var(--ink-3)}
+.tb-clear{display:inline-flex;align-items:center;gap:6px;height:40px;border:0;background:transparent;color:var(--brand-dark);font-weight:600;font-size:13.5px;padding:0 10px;border-radius:10px;cursor:pointer}
+.tb-clear:hover{background:var(--brand-soft)}
+.tb-count{margin-left:auto;font-size:13px;color:var(--ink-3);padding:0 6px;white-space:nowrap}
+@media (max-width:640px){.pill-select{flex:1 1 calc(50% - 4px)}.pill-select select{max-width:none;flex:1}.tb-count{margin-left:0}}
+.tb-clear[hidden]{display:none}
+
+.act-box{display:flex;gap:10px;align-items:flex-start;border:1.5px solid #1C9A6B;background:#E8F7F0;border-radius:10px;padding:10px 12px;margin:0 0 12px;cursor:pointer;color:#0F5E40}
+.act-box[hidden]{display:none}
+.act-box input{width:18px;height:18px;margin-top:2px;accent-color:#1C9A6B;flex:none}
+.act-box b{display:block;font-size:14.5px}
+.act-box small{display:block;font-size:12.5px;opacity:.85}
+:root[data-theme="dark"] .act-box{background:#123526;color:#7FE0B5}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .act-box{background:#123526;color:#7FE0B5}}
+.sus.act{background:#1C9A6B;color:#fff;margin-right:6px}
+.sus-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.sus-wrap .sus{margin-top:8px}
+.row2[hidden]{display:none}
 </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>Customer Success Argentina</h1>
-    <p class="sub">Tablero Ejecutivo de Retención y Churn</p>
-  </div>
-  <div class="updated" id="updatedLabel"></div>
-</header>
+<div id="loginView" class="login" hidden>
+  <h1>Central de llamados</h1>
+  <p id="loginMsg">Ingresá con el usuario que te dio tu líder.</p>
+  <form id="loginForm" class="login-form">
+    <label class="lbl" for="lEmail">Mail</label>
+    <input id="lEmail" type="email" autocomplete="username" placeholder="nombre@fu.do" required>
+    <label class="lbl" for="lPass">Contraseña</label>
+    <input id="lPass" type="password" autocomplete="current-password" required>
+    <button class="gbtn" id="btnLogin" type="submit">Ingresar</button>
+    <p class="login-err" id="loginErr" role="alert"></p>
+  </form>
+  <p style="margin-top:8px"><button class="btn" id="btnLogout2" type="button" hidden>Usar otra cuenta</button></p>
+</div>
 
-<div class="modal-overlay" id="accountModalOverlay">
-  <div class="modal-panel">
-    <button class="modal-close" id="accountModalClose" aria-label="Cerrar">×</button>
-    <div class="modal-head">
-      <span class="title" id="accountModalTitle"></span>
-      <span class="count" id="accountModalCount"></span>
+<div id="appView" hidden>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Central de llamados</h1>
+      <p class="sub">Cuentas de Argentina bloqueadas en Dash con estado comercial activo</p>
     </div>
-    <div class="modal-search"><input type="text" id="accountModalSearch" placeholder="Buscar cuenta..."></div>
-    <div class="modal-list" id="accountModalList"></div>
-  </div>
-</div>
-
-<div class="dropdown" id="execDropdown">
-  <button class="dropdown-btn" id="dropdownBtn">Ejecutivos: <span id="dropdownSummary">todos (8)</span></button>
-  <div class="dropdown-panel" id="dropdownPanel">
-    <p class="grouplabel">Engagement</p>
-    <div id="execListEngagement"></div>
-    <p class="grouplabel">Onboarding</p>
-    <div id="execListOnboarding"></div>
-    <div class="dropdown-actions">
-      <button id="selectAllBtn">Seleccionar todos</button>
-      <button id="clearAllBtn">Limpiar</button>
-    </div>
-  </div>
-</div>
-<div class="dropdown" style="margin-left:10px;">
-  <select class="dropdown-btn" id="monthSelect" style="appearance:none; -webkit-appearance:none; cursor:pointer;"></select>
-</div>
-
-<div class="switch-wrap" style="margin-left:14px;" title="Aplica a los KPI de arriba, el objetivo de retención y los paneles de cuentas. El resto del tablero (churn histórico, NRR, composición, cohortes, N1/N2, curva de desbloqueo) no distingue por ventas.">
-  <span id="salesFilterLabelAll">Todas las cuentas</span>
-  <div class="switch" id="salesFilterSwitch"><div class="knob"></div></div>
-  <span id="salesFilterLabelAdj">+50 ventas</span>
-</div>
-
-<div class="kpis" id="kpiRow"></div>
-
-<div class="objetivo" id="objetivoBox"></div>
-
-<section>
-  <div class="section-head">
-    <h2>Proyección: cuentas faltantes para objetivo</h2>
-    <p class="note">Estimado día a día, usando la curva de desbloqueo calibrada contra el dato real de hoy</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="projLegend"></div>
-    <div class="chart-wrap"><canvas id="projChart"></canvas></div>
-    <p class="chartdesc" id="projDesc"></p>
-
-    <details class="mini-details" id="unlockDetails">
-      <summary>Curva histórica de desbloqueo (referencia)</summary>
-      <div class="legend" id="unlockLegend"></div>
-      <div class="chart-wrap chart-wrap-sm"><canvas id="unlockChart"></canvas></div>
-      <p class="chartdesc" id="unlockDesc"></p>
-    </details>
-  </div>
-</section>
-
-<section>
-  <div class="section-head">
-    <h2>Composición de cartera por plan</h2>
-    <p class="note">Cuentas activas por ejecutivo, INI / PRO / ADV</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="compLegend"></div>
-    <div class="chart-wrap"><canvas id="compChart"></canvas></div>
-  </div>
-</section>
-
-<div class="grid-2">
-  <section>
-    <div class="section-head">
-      <h2>Churn mensual</h2>
-      <div class="switch-wrap">
-        <span>General</span>
-        <div class="switch" id="churnSwitch"><div class="knob"></div></div>
-        <span>Por ejecutivo</span>
+    <div class="top-actions">
+      <span class="fresh" id="fresh"></span>
+      <div class="menu-wrap">
+        <button class="hamb" id="btnMenu" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+          <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="hamb-name" id="whoMe"></span>
+        </button>
+        <div class="menu" id="menu" role="menu" hidden>
+          <div class="menu-head"><b id="menuName"></b><span id="menuMail"></span></div>
+          <button type="button" role="menuitem" id="btnRefresh">Actualizar desde HubSpot</button>
+          <button type="button" role="menuitem" id="btnExport">Exportar CSV</button>
+          <button type="button" role="menuitem" id="btnEquipo" hidden>Equipo y usuarios</button>
+          <div class="menu-sep" role="separator"></div>
+          <button type="button" role="menuitem" id="btnPw">Cambiar contraseña</button>
+          <button type="button" role="menuitem" id="btnLogout">Salir</button>
+        </div>
       </div>
     </div>
-    <div class="panel">
-      <div class="legend" id="churnLegend"></div>
-      <div class="chart-wrap"><canvas id="churnChart"></canvas></div>
+  </header>
+
+  <div id="banners"></div>
+
+  <div class="toolbar" role="search" aria-label="Filtros">
+    <div class="tb-search">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="fQ" placeholder="Buscar por nombre de cuenta o ID" aria-label="Buscar cuenta">
+    </div>
+    <label class="pill-select" id="pEjec"><span class="pl">Ejecutivo</span>
+      <select id="fEjec"><option value="">Todos</option></select>
+    </label>
+    <label class="pill-select" id="pSus"><span class="pl">Suscripción</span>
+      <select id="fSus"><option value="">Todas</option><option value="si">Activa</option><option value="no">Sin suscripción</option></select>
+    </label>
+    <label class="pill-select sort" id="pSort"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="pl">Ordenar</span>
+      <select id="fSort">
+        <option value="recent">Vendió más recientemente</option>
+        <option value="login">Login más reciente</option>
+        <option value="sinlogin">Más días sin login</option>
+        <option value="ventas">Más ventas</option>
+        <option value="proximo">Próximo llamado</option>
+        <option value="intentos">Menos intentos</option>
+        <option value="nombre">Nombre</option>
+      </select>
+    </label>
+    <button type="button" class="tb-clear" id="fClear" hidden>
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Limpiar filtros
+    </button>
+    <span class="tb-count" id="fCount" aria-live="polite"></span>
+  </div>
+
+  <nav class="tabs" id="tabs" hidden>
+    <button type="button" class="tab" id="tabLlamados" aria-pressed="true">Llamados</button>
+    <button type="button" class="tab" id="tabAvance" aria-pressed="false">Avance del equipo</button>
+  </nav>
+
+  <section id="adminView" hidden aria-label="Avance del equipo">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div class="card"><h3>Avance por ejecutivo</h3><p class="muted cap">Estado de gestión de las cuentas asignadas a cada ejecutivo de Engagement.</p><div id="chEjec"></div><div class="legend" id="chEjecLegend"></div></div>
+      <div class="card"><h3>Actividad por ejecutivo</h3><p class="muted cap">Llamados registrados por cada persona y cuántos fueron atendidos.</p><div id="chAct"></div></div>
+    </div>
+    <div class="card"><h3>Llamados por día</h3><p class="muted cap">Últimos 14 días. Naranja: atendidos. Gris: no atendidos, buzón o número erróneo.</p><div id="chDias"></div></div>
+    <div class="grid2">
+      <div class="card"><h3>Propuestas aceptadas</h3><div id="chProp"></div></div>
+      <div class="card"><h3>Motivos de baja</h3><p class="muted cap">Total de bajas que generó la campaña, incluidas las cuentas que ya salieron de la lista.</p><div id="chMot"></div></div>
     </div>
   </section>
 
-  <section>
-    <div class="section-head">
-      <h2>Net Revenue Retention</h2>
-      <div class="switch-wrap">
-        <span>General</span>
-        <div class="switch" id="nrrSwitch"><div class="knob"></div></div>
-        <span>Por ejecutivo</span>
-      </div>
+  <div id="callView">
+
+  <section class="strip-card" aria-label="Avance de la campaña">
+    <div class="strip-head">
+      <div class="strip-total" id="total">–<small>cuentas en la vista</small></div>
+      <div class="coverage" id="coverage"></div>
     </div>
-    <div class="panel">
-      <div class="legend" id="nrcLegend"></div>
-      <div class="chart-wrap"><canvas id="nrcChart"></canvas></div>
-    </div>
+    <div class="strip" id="strip" role="img" aria-label="Distribución por estado de gestión"></div>
+    <div class="legend" id="legend"></div>
   </section>
+
+  <div class="tablebox">
+    <div class="tscroll">
+      <table>
+        <thead><tr>
+          <th>Cuenta</th><th>Ejecutivo</th><th>Plan</th><th class="num">Ventas</th><th>Última venta</th><th>Último login</th><th>Gestión</th><th class="num">Intentos</th><th>Próximo llamado</th>
+        </tr></thead>
+        <tbody id="tbody">
+          <tr><td colspan="9"><div class="skeleton" style="width:60%"></div></td></tr>
+          <tr><td colspan="9"><div class="skeleton" style="width:45%"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+</div>
 </div>
 
-<section>
-  <div class="section-head">
-    <h2>Churn por plan (equipo)</h2>
-    <p class="note">% churn mensual desglosado por INI / PRO / ADV</p>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="dTitle" role="dialog">
+  <div class="d-head">
+    <div><h2 id="dTitle"></h2><div class="acc-id" id="dSub"></div><div id="dSus" class="sus-wrap"></div></div>
+    <button class="x" id="dClose" type="button" aria-label="Cerrar">×</button>
   </div>
-  <div class="panel">
-    <div class="legend" id="churnPlanLegend"></div>
-    <div class="chart-wrap"><canvas id="churnPlanChart"></canvas></div>
-  </div>
-</section>
+  <div class="d-body" id="dBody"></div>
+</aside>
 
-<section>
-  <div class="section-head">
-    <h2>Retención de cohortes — M3 / M6 / M12</h2>
-    <p class="note" id="teamScopedNote"></p>
+<div class="modal" id="teamModal" role="dialog" aria-labelledby="teamTitle">
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 id="teamTitle">Equipo con acceso</h2>
+      <button class="x" id="teamClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <p class="muted" style="margin:0">Creá el usuario y pasale el mail y la contraseña al ejecutivo. Después puede cambiarla desde el panel.</p>
+    <div class="team-add">
+      <input id="tEmail" type="email" placeholder="nombre@fu.do" aria-label="Mail">
+      <input id="tNombre" type="text" placeholder="Nombre y apellido" aria-label="Nombre">
+      <select id="tRol" aria-label="Rol"><option value="ejecutivo">Ejecutivo</option><option value="lider">Líder</option></select>
+      <div class="pw-row"><input id="tPass" type="text" placeholder="Contraseña (mín. 8)" aria-label="Contraseña"><button class="btn" id="tGen" type="button">Generar</button></div>
+      <button class="btn primary" id="tAdd" type="button">Crear usuario</button>
+    </div>
+    <p class="muted" id="tMsg" role="status"></p>
+    <div id="teamList"></div>
   </div>
-  <div class="panel">
-    <div class="legend" id="cohortLegend"></div>
-    <div class="chart-wrap"><canvas id="cohortChart"></canvas></div>
-    <p class="chartdesc">De las cuentas que contrataron 3, 6 o 12 meses antes de ese punto (M0 = mes de alta), qué % sigue pagando en ese milestone.</p>
+</div>
+<div class="modal" id="pwModal" role="dialog" aria-labelledby="pwTitle">
+  <div class="box" style="max-width:420px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 id="pwTitle">Cambiar contraseña</h2>
+      <button class="x" id="pwClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <form id="pwForm" class="login-form" style="text-align:left">
+      <label class="lbl" for="pw1">Nueva contraseña</label>
+      <input id="pw1" type="password" autocomplete="new-password" minlength="8" required>
+      <label class="lbl" for="pw2">Repetila</label>
+      <input id="pw2" type="password" autocomplete="new-password" minlength="8" required>
+      <button class="gbtn" type="submit">Guardar</button>
+    </form>
   </div>
-  <div class="callout" id="cohortCaveat" style="display:none;">Ojo al leer esta curva para Onboarding: las cuentas que <em>se gradúan</em> a Engagement salen de este grupo. Lo que queda "todavía en Onboarding" a los 6-12 meses son, en su mayoría, las que <strong>no lograron graduarse</strong> — por eso la retención cae tan fuerte. No es que Onboarding pierda casi todo; es que las que andan bien ya pasaron a Engagement.</div>
-</section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<section>
-  <div class="section-head">
-    <h2>Retención N1 / N2</h2>
-    <p class="note">Evolución mensual, % sobre activas al día 1, ejecutivos seleccionados combinados</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="n1n2Legend"></div>
-    <div class="chart-wrap"><canvas id="n1n2Chart"></canvas></div>
-    <p class="chartdesc"><strong>N1</strong>: cuentas activas todo el mes sin llegar a bloquearse. <strong>N2</strong>: cuentas que se bloquean mid-mes pero pagan y vuelven a activo antes del cierre.</p>
-  </div>
-</section>
-
-<section>
-  <div class="section-head">
-    <h2>Recupero de bajas</h2>
-    <p class="note">Cantidad de cuentas DROPPED al día 1 del mes que terminan ACTIVE al día 31 última hora</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="recLegend"></div>
-    <div class="chart-wrap"><canvas id="recChart"></canvas></div>
-  </div>
-</section>
-
-<section id="gradSection" style="display:none;">
-  <div class="section-head">
-    <h2>Graduaciones a Engagement por mes</h2>
-    <p class="note">Cuentas que pasaron de Onboarding a Engagement, por ejecutivo que las onboardeó</p>
-  </div>
-  <div class="panel">
-    <div class="legend" id="gradLegend"></div>
-    <div class="chart-wrap"><canvas id="gradChart"></canvas></div>
-    <p class="chartdesc">Antes contábamos como "baja" tanto a las cuentas que cancelan como a las que se gradúan a Engagement. Este gráfico separa la graduación (buena noticia) del churn real.</p>
-  </div>
-  <div class="callout">Usa <code>engagement_executive_assign_date</code> — un campo de fecha de asignación, no un log histórico completo. Excluye diciembre 2025 por un salto que parece migración de datos, no graduaciones orgánicas.</div>
-</section>
-
-<script src="data_blob.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-const MONTHS_END = ['2025-08-01','2025-09-01','2025-10-01','2025-11-01','2025-12-01','2026-01-01','2026-02-01','2026-03-01','2026-04-01','2026-05-01','2026-06-01','2026-07-01','2026-08-01'];
-const MONTHS_LABEL = ['Ago 25','Sep 25','Oct 25','Nov 25','Dic 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26','Jul 26','Ago 26'];
-const grid = '#e1e0d9';
-let charts = {};
-let selectedExecs = new Set(DATA.allExecs);
-let churnByExec = false;
-let nrrByExec = false;
-let selectedMonth = MONTHS_END[MONTHS_END.length - 1];
-// Filtro de ventas: 'all' = todas las cuentas, 'adj' = sólo cuentas con sales_count > 50.
-// Afecta los KPI de arriba, el objetivo de retención y los paneles de cuentas (todo lo que
-// se recalcula en vivo desde Metabase). El resto del tablero (churn histórico, NRR,
-// composición, cohortes, N1/N2, curva de desbloqueo) es dato cargado a mano y no distingue
-// por ventas, así que no cambia con este switch.
-let salesView = 'all';
-// campos "base" (baseDia1, baseMismoDiaMesAnterior): el dato sin sufijo YA es la versión +50
-// ventas (es la base de negocio original); la versión "todas las cuentas" vive en el campo
-// con sufijo "All".
-function baseField(name){ return salesView === 'all' ? name + 'All' : name; }
-// campos de "actividad" (bloqueadas*, dropped*, recuperadas*, yaCayeron*): el dato sin
-// sufijo YA es la versión "todas las cuentas"; la versión +50 ventas vive en el campo con
-// sufijo "Adj".
-function actField(name){ return salesView === 'adj' ? name + 'Adj' : name; }
-function monthLabelFor(mo){ const i = MONTHS_END.indexOf(mo); return i >= 0 ? MONTHS_LABEL[i] : mo; }
+(function(){
+const SUPABASE_URL = "https://rgbnwwppkrcbyolegnpi.supabase.co";
+const SUPABASE_KEY = "sb_publishable_GYrQhIFtez0lF40-6oIjLw_tq9cvAfc";
+const HS_PORTAL = "5096255";
 
-function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
-function fmtUSD(v){ return '$' + Math.round(v).toLocaleString('es-AR'); }
-function legendHTML(list){ return list.map(e => `<span class="item"><span class="dot" style="background:${DATA.colors[e]}"></span>${e}</span>`).join(''); }
-function selList(){ return DATA.allExecs.filter(e => selectedExecs.has(e)); }
-function scopeTeams(){
-  const teams = new Set(selList().map(e => DATA.teamOf[e]));
-  if (teams.size === 0) return null;
-  if (teams.size === 1) return [...teams][0];
-  return 'mixed';
+const ESTADOS = {
+  pendiente:      {label:"Sin gestionar",     color:"var(--s-pend)"},
+  sin_respuesta:  {label:"No atendió",        color:"var(--s-sin)"},
+  seguimiento:    {label:"En seguimiento",    color:"var(--s-seg)"},
+  acepta:         {label:"Acepta propuesta",  color:"var(--s-acep)"},
+  regularizo:     {label:"Ya regularizó",     color:"var(--s-reg)"},
+  rechaza:        {label:"Rechaza",           color:"var(--s-rech)"},
+  numero_erroneo: {label:"Número erróneo",    color:"var(--s-err)"},
+  solicita_baja:  {label:"Solicita baja",     color:"#8E2A24"}
+};
+const RESULTADOS = ["Atendió","No atendió","Buzón de voz","Número equivocado"];
+const RESPUESTAS = ["Acepta","Lo va a pensar","Rechaza","Ya regularizó"];
+// Propuestas comerciales de la campaña y motivos de baja (propiedad «CS | Motivo Baja SaaS» de HubSpot)
+const PROPUESTAS = ["30%OFF x 2 meses","50%OFF x 2 meses","50%OFF x 6 meses"];
+// Opciones de «CS | Submotivo Baja SaaS» en HubSpot
+const SUBMOTIVOS = ["El costo es muy alto para las funcionalidades que posee","Ventas: Complejidad de uso","Arqueo: Complejidad de uso","Productos: Complejidad de uso","Gastos: Complejidad de uso","Problemas con impresoras","Problemas de red","Eligió otro sistema por precio","Eligió otro sistema por servicio","No funciona como esperaba","Faltan funcionalidades que necesito","Perdió acceso"];
+const MOTIVOS = ["Cierre definitivo","Cierre temporal","Precio","Servicio","Problemas técnicos","Producto","Cambio dueño","Sistema propio","Desarrollo con IA","Sin respuesta","Otro"];
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let vista="llamados", me=null, meRow=null, deals=[], gestion={}, filtroEstado=null, selected=null, llamadosSel=[], chLlamados=null, started=false;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtD=d=>d?d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"2-digit"}):"–";
+const fmtDT=d=>d?d.toLocaleString("es-AR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}):"–";
+const fmtN=n=>n==null||isNaN(n)?"–":Number(n).toLocaleString("es-AR");
+const toD=v=>{if(!v)return null;const d=new Date(v);return isNaN(d)?null:d};
+const dLocal=s=>s?new Date(s+"T12:00:00"):null;
+const daysSince=d=>d?Math.floor((Date.now()-d.getTime())/86400000):null;
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600)}
+function banner(html,kind){$("banners").innerHTML=html?`<div class="banner ${kind||""}">${html}</div>`:""}
+async function fnError(error){
+  try{ if(error&&error.context&&error.context.json){const b=await error.context.json(); if(b&&b.error) return b.error} }catch(e){}
+  return (error&&error.message)||"Error desconocido";
 }
 
-// ---- dropdown executive picker ----
-function buildExecDropdown(){
-  const eng = DATA.allExecs.filter(e => DATA.teamOf[e] === 'engagement');
-  const onb = DATA.allExecs.filter(e => DATA.teamOf[e] === 'onboarding');
-  const rowHTML = (list) => list.map(e => `
-    <label class="execchk"><input type="checkbox" data-exec="${e}" checked>
-    <span class="dot" style="background:${DATA.colors[e]}"></span>${e}</label>
-  `).join('');
-  document.getElementById('execListEngagement').innerHTML = rowHTML(eng);
-  document.getElementById('execListOnboarding').innerHTML = rowHTML(onb);
-  document.querySelectorAll('.execchk input').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const e = cb.dataset.exec;
-      if (cb.checked) selectedExecs.add(e); else selectedExecs.delete(e);
-      updateDropdownSummary();
-      renderAll();
-    });
-  });
-  const btn = document.getElementById('dropdownBtn');
-  const panel = document.getElementById('dropdownPanel');
-  btn.addEventListener('click', (ev) => { ev.stopPropagation(); panel.classList.toggle('open'); });
-  document.addEventListener('click', (ev) => { if (!document.getElementById('execDropdown').contains(ev.target)) panel.classList.remove('open'); });
-  document.getElementById('selectAllBtn').addEventListener('click', () => {
-    selectedExecs = new Set(DATA.allExecs);
-    document.querySelectorAll('.execchk input').forEach(cb => cb.checked = true);
-    updateDropdownSummary(); renderAll();
-  });
-  document.getElementById('clearAllBtn').addEventListener('click', () => {
-    selectedExecs = new Set();
-    document.querySelectorAll('.execchk input').forEach(cb => cb.checked = false);
-    updateDropdownSummary();
+/* ---------- Auth ---------- */
+$("loginForm").onsubmit=async ev=>{
+  ev.preventDefault(); $("loginErr").textContent=""; $("btnLogin").disabled=true;
+  const {error}=await sb.auth.signInWithPassword({email:$("lEmail").value.trim().toLowerCase(),password:$("lPass").value});
+  $("btnLogin").disabled=false;
+  if(error) $("loginErr").textContent=/invalid/i.test(error.message)?"Mail o contraseña incorrectos.":error.message;
+};
+const logout=async()=>{await sb.auth.signOut();location.reload()};
+$("btnLogout").onclick=logout; $("btnLogout2").onclick=logout;
+
+function showLogin(msg,withLogout){
+  $("appView").hidden=true;$("loginView").hidden=false;
+  $("loginMsg").textContent=msg||"Ingresá con el usuario que te dio tu líder.";
+  $("loginForm").hidden=!!withLogout; $("btnLogout2").hidden=!withLogout;
+}
+async function onSession(session){
+  if(!session){showLogin();return}
+  me=session.user; const email=(me.email||"").toLowerCase();
+  if(!email.endsWith("@fu.do")){showLogin(`Entraste como ${email}. Solo pueden ingresar cuentas @fu.do.`,true);return}
+  const {data:row}=await sb.from("equipo").select("*").eq("email",email).maybeSingle();
+  if(!row||!row.activo){showLogin(`Tu usuario (${email}) todavía no tiene acceso. Pedile a tu líder que te agregue al equipo del panel.`,true);return}
+  meRow=row;
+  $("loginView").hidden=true;$("appView").hidden=false;
+  $("whoMe").textContent=row.nombre||email; $("menuName").textContent=row.nombre||email; $("menuMail").textContent=email;
+  $("btnEquipo").hidden=row.rol!=="lider";
+  $("tabs").hidden=row.rol!=="lider";
+  if(!started){started=true;start()}
+}
+sb.auth.onAuthStateChange((_e,session)=>{setTimeout(()=>onSession(session),0)});
+
+/* ---------- Data ---------- */
+function mapCuenta(c){
+  const last=toD(c.ultima_venta), login=toD(c.ultimo_login);
+  return {id:c.deal_id,name:c.nombre||"(sin nombre)",accountId:c.account_id||"",plan:c.plan||"",amount:c.monto,
+    close:toD(c.fecha_alta),ventas:c.ventas,lastSale:last,daysNoSale:daysSince(last),ejecId:c.ejecutivo_id||"",
+    ejec:c.ejecutivo||"Sin asignar",tel:c.telefono||"",lastLogin:login,sus:c.suscripcion_activa,daysNoLogin:daysSince(login),
+    dash:c.link_dash||(/^\d+$/.test(c.account_id||"")?`https://dash.fu.do/accounts/${c.account_id}`:""),estadoDate:toD(c.fecha_estado),lastOkCall:toD(c.ultimo_llamado_exitoso)};
+}
+async function loadCuentas(){
+  const all=[]; let from=0;
+  for(;;){
+    const {data,error}=await sb.from("cuentas").select("*").eq("activa",true).range(from,from+999);
+    if(error){banner("No se pudieron leer las cuentas: "+esc(error.message),"err");return}
+    all.push(...data); if(data.length<1000) break; from+=1000;
+  }
+  deals=all.map(mapCuenta); fillEjecutivos(); render();
+}
+async function loadGestion(){
+  const {data,error}=await sb.from("gestiones").select("*");
+  if(error){banner("No se pudo leer la gestión: "+esc(error.message),"err");return}
+  gestion={}; data.forEach(g=>gestion[g.deal_id]=g); render(); renderDrawerHeaderBits();
+}
+async function loadSyncInfo(){
+  const {data}=await sb.from("sync_log").select("*").order("id",{ascending:false}).limit(1);
+  const s=data&&data[0];
+  if(!s){$("fresh").textContent="Sin sincronizar todavía";return}
+  $("fresh").textContent=(s.ok?"Cuentas al ":"Falló la sync del ")+fmtDT(toD(s.fecha));
+  if(!s.ok) banner("La última actualización desde HubSpot falló: "+esc(s.detalle||""),"err");
+}
+function start(){
+  loadCuentas(); loadGestion(); loadSyncInfo();
+  sb.channel("gestiones").on("postgres_changes",{event:"*",schema:"public",table:"gestiones"},p=>{
+    const r=p.new&&p.new.deal_id?p.new:null; if(r){gestion[r.deal_id]=r;render();if(selected&&selected.id===r.deal_id)renderDrawerHeaderBits();if(vista==="avance"){clearTimeout(window.__ra);window.__ra=setTimeout(renderAdmin,800)}}
+  }).subscribe();
+  let t=null;
+  sb.channel("cuentas").on("postgres_changes",{event:"*",schema:"public",table:"cuentas"},()=>{clearTimeout(t);t=setTimeout(()=>{loadCuentas();loadSyncInfo()},1500)}).subscribe();
+}
+
+/* ---------- List ---------- */
+function estadoDe(id){const g=gestion[id];return g&&g.estado&&ESTADOS[g.estado]?g.estado:"pendiente"}
+function fillEjecutivos(){
+  const sel=$("fEjec"), cur=sel.value;
+  const names=[...new Set(deals.map(d=>d.ejec))].sort((a,b)=>a==="Sin asignar"?1:b==="Sin asignar"?-1:a.localeCompare(b,"es"));
+  const counts={}; deals.forEach(d=>counts[d.ejec]=(counts[d.ejec]||0)+1);
+  sel.innerHTML=`<option value="">Todos (${deals.length})</option>`+names.map(n=>`<option value="${esc(n)}">${esc(n)} (${counts[n]})</option>`).join("");
+  if(names.includes(cur)) sel.value=cur;
+}
+function baseFiltered(){
+  const e=$("fEjec").value, q=$("fQ").value.trim().toLowerCase(), s=$("fSus").value;
+  return deals.filter(d=>(!e||d.ejec===e)&&(!s||(s==="si"?d.sus===true:d.sus!==true))&&(!q||d.name.toLowerCase().includes(q)||d.accountId.includes(q)));
+}
+function sortList(list){
+  const s=$("fSort").value, g=id=>gestion[id]||{};
+  const by={
+    recent:(a,b)=>(b.lastSale?b.lastSale.getTime():0)-(a.lastSale?a.lastSale.getTime():0),
+    ventas:(a,b)=>(b.ventas||0)-(a.ventas||0),
+    login:(a,b)=>(b.lastLogin?b.lastLogin.getTime():0)-(a.lastLogin?a.lastLogin.getTime():0),
+    sinlogin:(a,b)=>(a.lastLogin?a.lastLogin.getTime():0)-(b.lastLogin?b.lastLogin.getTime():0),
+    proximo:(a,b)=>String(g(a.id).proximo_llamado||"9999").localeCompare(String(g(b.id).proximo_llamado||"9999")),
+    intentos:(a,b)=>(g(a.id).intentos||0)-(g(b.id).intentos||0),
+    nombre:(a,b)=>a.name.localeCompare(b.name,"es")
+  }[s];
+  return list.slice().sort(by);
+}
+function updateFilterUI(shown){
+  $("pEjec").classList.toggle("on",!!$("fEjec").value);
+  $("pSus").classList.toggle("on",!!$("fSus").value);
+  const any=!!($("fEjec").value||$("fSus").value||$("fQ").value.trim()||filtroEstado);
+  $("fClear").hidden=!any;
+  $("fCount").textContent=deals.length?(any?`${fmtN(shown)} de ${fmtN(deals.length)} cuentas`:`${fmtN(deals.length)} cuentas`):"";
+}
+$("fClear").onclick=()=>{$("fEjec").value="";$("fSus").value="";$("fQ").value="";filtroEstado=null;render();$("fQ").focus()};
+function render(){
+  const base=baseFiltered();
+  const counts={}; Object.keys(ESTADOS).forEach(k=>counts[k]=0);
+  base.forEach(d=>counts[estadoDe(d.id)]++);
+  const total=base.length, gest=total-counts.pendiente;
+  $("total").innerHTML=`${fmtN(total)}<small>cuentas en la vista</small>`;
+  $("coverage").textContent=total?`${Math.round(gest/total*100)}% gestionadas, ${fmtN(counts.acepta+counts.regularizo)} recuperadas`:"";
+  $("strip").innerHTML=Object.keys(ESTADOS).map(k=>counts[k]?`<span title="${esc(ESTADOS[k].label)}: ${counts[k]}" style="width:${counts[k]/total*100}%;background:${ESTADOS[k].color}"></span>`:"").join("");
+  $("legend").innerHTML=Object.keys(ESTADOS).map(k=>`<button type="button" class="chip" data-e="${k}" aria-pressed="${filtroEstado===k}"><span class="dot" style="background:${ESTADOS[k].color}"></span>${esc(ESTADOS[k].label)} <b>${counts[k]}</b></button>`).join("");
+  $("legend").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{filtroEstado=filtroEstado===b.dataset.e?null:b.dataset.e;render()});
+  let list=filtroEstado?base.filter(d=>estadoDe(d.id)===filtroEstado):base;
+  list=sortList(list); updateFilterUI(list.length);
+  if(vista==="avance"){clearTimeout(window.__ra);window.__ra=setTimeout(renderAdmin,300)}
+  const tb=$("tbody");
+  if(!deals.length){tb.innerHTML=`<tr><td colspan="9" class="empty">No hay cuentas cargadas. Tocá «Actualizar desde HubSpot» para traerlas.</td></tr>`;return}
+  if(!list.length){tb.innerHTML=`<tr><td colspan="9" class="empty">Ninguna cuenta coincide con estos filtros.</td></tr>`;return}
+  tb.innerHTML=list.map(d=>{
+    const g=gestion[d.id]||{}, e=estadoDe(d.id), ds=d.daysNoSale;
+    const dcls=ds==null?"muted":ds<=30?"days-hot":ds>90?"days-cold":"";
+    const dl=d.daysNoLogin, lcls=dl==null?"muted":dl<=7?"days-hot":dl>30?"days-cold":"";
+    return `<tr data-id="${esc(d.id)}" class="${selected&&selected.id===d.id?"sel":""}" tabindex="0">
+      <td><div class="acc-name">${esc(d.name)}${d.sus===true?`<span class="tag-sus" title="Suscripción activa">Susc. activa</span>`:""}</div><div class="acc-id">ID ${esc(d.accountId||"–")}</div></td>
+      <td>${esc(d.ejec)}</td>
+      <td class="muted">${esc(d.plan||"–")}</td>
+      <td class="num">${fmtN(d.ventas)}</td>
+      <td>${fmtD(d.lastSale)} <span class="${dcls}">${ds==null?"":`hace ${ds} d`}</span></td>
+      <td>${fmtD(d.lastLogin)} <span class="${lcls}">${dl==null?"":`hace ${dl} d`}</span></td>
+      <td><span class="badge"><span class="dot" style="background:${ESTADOS[e].color}"></span>${esc(ESTADOS[e].label)}</span></td>
+      <td class="num">${g.intentos||0}</td>
+      <td>${g.proximo_llamado?fmtD(dLocal(g.proximo_llamado)):"–"}</td></tr>`;
+  }).join("");
+  tb.querySelectorAll("tr[data-id]").forEach(tr=>{
+    const open=()=>openDrawer(deals.find(x=>x.id===tr.dataset.id));
+    tr.onclick=open; tr.onkeydown=ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();open()}};
   });
 }
-function updateDropdownSummary(){
-  const n = selectedExecs.size;
-  document.getElementById('dropdownSummary').textContent = (n === DATA.allExecs.length) ? `todos (${n})` : (n === 0 ? 'ninguno' : `${n} seleccionados`);
+
+/* ---------- Drawer ---------- */
+function closeDrawer(){
+  $("drawer").classList.remove("open");$("scrim").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");
+  if(chLlamados){sb.removeChannel(chLlamados);chLlamados=null}
+  const prev=selected; selected=null; render();
+  if(prev){const tr=document.querySelector(`tr[data-id="${CSS.escape(prev.id)}"]`); if(tr) tr.focus()}
 }
+$("dClose").onclick=closeDrawer; $("scrim").onclick=closeDrawer;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("pwModal").classList.contains("open"))$("pwModal").classList.remove("open");else if($("teamModal").classList.contains("open"))$("teamModal").classList.remove("open");else if(selected)closeDrawer()}});
 
-function renderObjetivo(){
-  const list = selList();
-  const rt = DATA.retentionTarget;
-  if (!rt) return;
-  let bloqueadasPico = 0, recuperadasDesdePico = 0, siguenBloqueadas = 0, yaCayeronDePico = 0, droppedYa = 0;
-  let bloqueadasHoy = 0, bloqueadasAyer = 0, droppedAyer = 0, base = 0;
-  let baseMismoDiaMesAnterior = 0, bloqueadasMismoDiaMesAnterior = 0;
-  list.forEach(e => { const p = rt.progress[e]; if (p) {
-    bloqueadasPico += p[actField('bloqueadasPico')]; recuperadasDesdePico += p[actField('recuperadasDesdePico')];
-    siguenBloqueadas += p[actField('siguenBloqueadas')]; yaCayeronDePico += p[actField('yaCayeronDePico')]; droppedYa += p[actField('droppedYa')];
-    bloqueadasHoy += p[actField('bloqueadasHoy')]; bloqueadasAyer += p[actField('bloqueadasAyer')]; droppedAyer += p[actField('droppedAyer')];
-    base += p[baseField('baseDia1')];
-    baseMismoDiaMesAnterior += p[baseField('baseMismoDiaMesAnterior')]; bloqueadasMismoDiaMesAnterior += p[actField('bloqueadasMismoDiaMesAnterior')];
-  } });
-  const target = rt.target;
-  const allowedLossPct = (1 - target) * 100; // 2.0
-  const amberLimit = allowedLossPct * 1.25; // 2.5
-  // base FIJA del día 1 del mes, de los ejecutivos seleccionados — las bloqueadas son las mismas cuentas de esa base que cambiaron de estado, no se suman aparte
-  const allowedLossCount = base * (1 - target);
-
-  const confirmedLossPct = base ? (bloqueadasHoy / base * 100) : 0; // "posibles bajas" = bloqueadas hoy sobre la base — todavía no hay baja confirmada
-  const confirmedLossPctAyer = base ? (bloqueadasAyer / base * 100) : 0;
-  const deltaConfirmedPct = confirmedLossPct - confirmedLossPctAyer;
-
-  function zoneColor(v){ if (v===null) return '#9a9a90'; if (v<=allowedLossPct) return '#2f6f5e'; if (v<=amberLimit) return '#b3781c'; return '#b23b3b'; }
-  const confirmedColor = zoneColor(confirmedLossPct);
-
-  const scaleMax = Math.max(amberLimit * 1.4, (confirmedLossPct||0) * 1.15, 3);
-  const valuePos = confirmedLossPct === null ? 0 : Math.min(100, confirmedLossPct / scaleMax * 100);
-  const greenEnd = Math.min(100, allowedLossPct / scaleMax * 100);
-  const amberEnd = Math.min(100, amberLimit / scaleMax * 100);
-  const trackGradient = `linear-gradient(to right, #2f6f5e 0%, #2f6f5e ${greenEnd}%, #b3781c ${greenEnd}%, #b3781c ${amberEnd}%, #b23b3b ${amberEnd}%, #b23b3b 100%)`;
-
-  // cuentas faltantes de activar para churn on target
-  // = bloqueadas hoy - máximo permitido (2% de la base fija del día 1)
-  // (todavía no hay baja confirmada este mes: sale recién de las bloqueadas que no cambien de estado a fin de mes)
-  function faltantes(bloq){ return Math.max(0, Math.round(bloq - allowedLossCount)); }
-  const faltantesHoy = faltantes(bloqueadasHoy);
-  const faltantesAyer = faltantes(bloqueadasAyer);
-  const allowedLossCountMesAnterior = baseMismoDiaMesAnterior * (1 - target);
-  const faltantesMismoDiaMesAnterior = baseMismoDiaMesAnterior ? Math.max(0, Math.round(bloqueadasMismoDiaMesAnterior - allowedLossCountMesAnterior)) : null;
-  const deltaVsMesAnterior = faltantesMismoDiaMesAnterior === null ? null : (faltantesHoy - faltantesMismoDiaMesAnterior);
-  const deltaFaltantes = faltantesHoy - faltantesAyer;
-  const imposibleHoy = faltantesHoy > bloqueadasHoy;
-  const faltantesColor = faltantesHoy === 0 ? '#2f6f5e' : (imposibleHoy ? '#b23b3b' : (faltantesHoy <= bloqueadasHoy*0.5 ? '#b3781c' : '#b23b3b'));
-
-  document.getElementById('objetivoBox').innerHTML = `
-    <div class="objetivo-head">
-      <span class="label">Objetivo de retención (meta ${(target*100).toFixed(0)}%)
-        <span class="info-btn" id="infoBtnObjetivo">i</span>
-        <span style="font-weight:400; color:var(--ink-soft); font-size:12.5px;">(${salesView==='adj'?'+50 ventas':'todas las cuentas'})</span>
-      </span>
-      <span class="pct" style="color:${confirmedColor}">${confirmedLossPct.toFixed(2)}% posibles bajas <span style="font-size:14.5px; font-weight:500;">${deltaConfirmedPct===0?'— sin cambios':(deltaConfirmedPct>0?'▲ +'+deltaConfirmedPct.toFixed(2)+'pp':'▼ '+deltaConfirmedPct.toFixed(2)+'pp')} vs. ayer</span></span>
+function renderDrawerHeaderBits(){
+  if(!selected) return;
+  const g=gestion[selected.id]||{}, e=estadoDe(selected.id);
+  const el=$("dState"); if(el) el.innerHTML=`<span class="badge"><span class="dot" style="background:${ESTADOS[e].color}"></span>${esc(ESTADOS[e].label)}</span>`;
+  const at=$("attemptN"); if(at) at.textContent=`Este será el intento ${(g.intentos||0)+1}`;
+}
+function openDrawer(d){
+  if(!d) return;
+  selected=d; render();
+  const g=gestion[d.id]||{};
+  $("dTitle").textContent=d.name;
+  $("dSub").textContent=`ID de cuenta ${d.accountId||"–"}, ${d.ejec}`;
+  const gAct=(gestion[d.id]||{}).activacion_inmediata;
+  $("dSus").innerHTML=(gAct?`<span class="sus act">Activación inmediata solicitada</span> `:"")+(d.sus===true?`<span class="sus si">Suscripción activa</span>`:d.sus===false?`<span class="sus no">Sin suscripción activa</span>`:`<span class="sus nd">Suscripción sin dato</span>`);
+  const hubspotUrl=`https://app.hubspot.com/contacts/${HS_PORTAL}/record/0-3/${encodeURIComponent(d.id)}`;
+  const dashUrl=/^https?:\/\//.test(d.dash)?d.dash:"";
+  const opt=(name,vals)=>vals.map((v,i)=>`<input type="radio" name="${name}" id="${name}${i}" value="${esc(v)}"><label for="${name}${i}">${esc(v)}</label>`).join("");
+  $("dBody").innerHTML=`
+    <div class="facts">
+      <div class="fact"><div class="k">Plan</div><div class="v small">${esc(d.plan||"–")}</div></div>
+      <div class="fact"><div class="k">Cantidad de ventas</div><div class="v">${fmtN(d.ventas)}</div></div>
+      <div class="fact"><div class="k">Última venta</div><div class="v">${fmtD(d.lastSale)}</div></div>
+      <div class="fact"><div class="k">Días sin vender</div><div class="v">${d.daysNoSale==null?"–":d.daysNoSale}</div></div>
+      <div class="fact"><div class="k">Último login</div><div class="v">${fmtD(d.lastLogin)}</div></div>
+      <div class="fact"><div class="k">Días sin login</div><div class="v">${d.daysNoLogin==null?"–":d.daysNoLogin}</div></div>
+      <div class="fact"><div class="k">Monto del negocio</div><div class="v small">${d.amount==null?"–":"$ "+fmtN(d.amount)}</div></div>
+      <div class="fact"><div class="k">Cliente desde</div><div class="v">${fmtD(d.close)}</div></div>
+      <div class="fact"><div class="k">Cambio de estado en Dash</div><div class="v">${fmtD(d.estadoDate)}</div></div>
+      <div class="fact"><div class="k">Último llamado exitoso</div><div class="v">${fmtD(d.lastOkCall)}</div></div>
+      <div class="fact"><div class="k">Gestión</div><div class="v small" id="dState"></div></div>
     </div>
-    <div class="info-panel" id="infoPanelObjetivo">
-      Verde: baja ≤${allowedLossPct.toFixed(1)}% (dentro del objetivo). Ámbar: hasta ${amberLimit.toFixed(1)}%. Rojo: por encima de ${amberLimit.toFixed(1)}%.
-      Base = cuentas activas el día 1 del mes (fija, no cambia). Las bloqueadas son esas mismas cuentas que cambiaron de estado — no se suman aparte. Todavía no hay baja confirmada este mes: sale recién a fin de mes, de las bloqueadas que no hayan pagado.
+    <div class="links">
+      <a href="${hubspotUrl}" target="_blank" rel="noopener">Abrir en HubSpot</a>
+      ${dashUrl?`<a href="${esc(dashUrl)}" target="_blank" rel="noopener">Abrir en Dash</a>`:`<span class="muted" style="font-size:13.5px;align-self:center">Sin ID de cuenta para abrir Dash</span>`}
     </div>
-    <div class="objetivo-bar-track" style="background:${trackGradient};">
-      <div class="objetivo-pointer" style="left:${valuePos}%; border-top-color:${confirmedColor};"></div>
-    </div>
-    <div class="objetivo-scale"><span>0%</span><span>${scaleMax.toFixed(1)}%</span></div>
-
-    <div class="big-kpi">
-      <div class="label">Cuentas faltantes de activar (bloqueadas → activas) para estar en el mínimo 98% de retención</div>
-      <div class="value" style="color:${faltantesColor}">
-        ${faltantesHoy.toLocaleString('es-AR')}
-        <span class="delta ${deltaFaltantes>0?'up':(deltaFaltantes<0?'down':'')}">${deltaFaltantes===0?'— sin cambios':(deltaFaltantes>0?'▲ +'+deltaFaltantes:'▼ '+deltaFaltantes)} vs. ayer</span>
+    <h3>Contactos</h3>
+    <div id="contacts"><div class="skeleton" style="width:70%;margin:8px 0"></div></div>
+    <h3>Registrar contacto</h3>
+    <form class="log" id="logForm">
+      <div class="field"><span class="lbl">Resultado del llamado</span><div class="opts">${opt("res",RESULTADOS)}</div></div>
+      <div class="field" id="respBox" hidden><span class="lbl">Respuesta del cliente</span><div class="opts">${opt("resp",RESPUESTAS)}</div></div>
+      <label class="act-box" id="actBox" hidden><input type="checkbox" id="actInm"><span><b>Activación inmediata</b><small>Se carga una fila en la planilla «Bonificación Bloqueados» para que Administración active la cuenta.</small></span></label>
+      <div class="field"><label class="lbl" for="prop">Propuesta comercial ofrecida</label><select id="prop"><option value="">Sin propuesta</option>${PROPUESTAS.map(p=>`<option>${esc(p)}</option>`).join("")}</select></div>
+      <label class="sync"><input type="checkbox" id="baja"><span><b>El cliente solicita la baja.</b> En HubSpot se marca «Solicita Baja: Sí» y se guarda el motivo en «CS | Motivo Baja SaaS».</span></label>
+      <div class="row2" id="motBox" hidden>
+        <div class="field"><label class="lbl" for="mot">Motivo de baja</label><select id="mot"><option value="">Elegí el motivo</option>${MOTIVOS.map(p=>`<option>${esc(p)}</option>`).join("")}</select></div>
+        <div class="field"><label class="lbl" for="submot">Submotivo de baja</label><select id="submot"><option value="">Sin submotivo</option>${SUBMOTIVOS.map(p=>`<option>${esc(p)}</option>`).join("")}</select></div>
       </div>
-      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:13px; color:var(--ink-soft);">Mismo día del mes anterior: ${faltantesMismoDiaMesAnterior===null?'s/d':faltantesMismoDiaMesAnterior.toLocaleString('es-AR')}${deltaVsMesAnterior!==null?` (${deltaVsMesAnterior===0?'sin cambios':(deltaVsMesAnterior>0?'▲ +'+deltaVsMesAnterior:'▼ '+deltaVsMesAnterior)})`:''}</span></div>
-      <div class="objetivo-sub" style="margin-top:6px;"><span style="font-size:12.5px;">Base día 1: ${base.toLocaleString('es-AR')} · máximo ${Math.round(allowedLossCount)} bajas permitidas (2%) · bloqueadas hoy: ${bloqueadasHoy}</span></div>
-      ${imposibleHoy ? `<div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:12.5px; color:#b23b3b;">⚠ solo hay ${bloqueadasHoy} bloqueadas disponibles — activando todas, igual quedarías ${faltantesHoy-bloqueadasHoy} por encima del objetivo</span></div>` : ''}
-      <div class="objetivo-sub" style="margin-top:2px;"><span style="font-size:11.5px;">${rt.baseFijaNota||''}</span></div>
-    </div>
-
-    <p class="note" style="margin-bottom:4px;">Bloqueadas el ${rt.peakLabel} (${bloqueadasPico}) vs. activas hoy</p>
-    <div class="resolution-legend">
-      <span class="item"><span class="dot" style="background:#2f6f5e"></span>Activas hoy: ${recuperadasDesdePico}</span>
-      <span class="item"><span class="dot" style="background:#b3781c"></span>Bloqueadas: ${siguenBloqueadas}</span>
-      <span class="item"><span class="dot" style="background:#b23b3b"></span>Cayeron: ${yaCayeronDePico}</span>
-    </div>
-  `;
-  const infoBtn = document.getElementById('infoBtnObjetivo');
-  const infoPanel = document.getElementById('infoPanelObjetivo');
-  if (infoBtn) infoBtn.addEventListener('click', () => infoPanel.classList.toggle('open'));
+      <div class="row2">
+        <div class="field"><label class="lbl" for="tel">Teléfono usado</label><input id="tel" type="text" inputmode="tel" style="width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px" value="${esc(d.tel)}"></div>
+        <div class="field"><label class="lbl" for="prox">Volver a llamar el</label><input id="prox" type="date" value="${esc(g.proximo_llamado||"")}"></div>
+      </div>
+      <div class="field"><label class="lbl" for="notas">Notas</label><textarea id="notas" placeholder="Qué dijo, compromisos, próximos pasos"></textarea></div>
+      <label class="sync"><input type="checkbox" id="syncHs" checked><span>Guardar el registro en HubSpot: queda como nota en el negocio y, si cargaste fecha para volver a llamar, se crea una tarea de llamada para ${esc(d.ejec==="Sin asignar"?"vos":d.ejec)}. La solicitud de baja se graba en HubSpot siempre, aunque esto esté destildado.</span></label>
+      <div class="form-foot"><span class="attempt" id="attemptN"></span><button class="btn primary" type="submit" id="btnSave">Guardar contacto</button></div>
+    </form>
+    <h3>Historial de gestiones</h3>
+    <ul class="hist" id="hist"><li class="muted">Cargando…</li></ul>`;
+  renderDrawerHeaderBits();
+  $("drawer").classList.add("open");$("scrim").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
+  $("dClose").focus();
+  const form=$("logForm");
+  const syncAct=()=>{const res=(form.querySelector('input[name="res"]:checked')||{}).value, resp=(form.querySelector('input[name="resp"]:checked')||{}).value;
+    const show=res==="Atendió"&&resp==="Acepta"&&!$("baja").checked; $("actBox").hidden=!show; if(!show) $("actInm").checked=false};
+  form.querySelectorAll('input[name="res"]').forEach(r=>r.onchange=()=>{$("respBox").hidden=r.value!=="Atendió"||!r.checked;syncAct()});
+  form.querySelectorAll('input[name="resp"]').forEach(r=>r.addEventListener("change",syncAct));
+  $("baja").onchange=()=>{$("motBox").hidden=!$("baja").checked; if(!$("baja").checked){$("mot").value="";$("submot").value=""} syncAct()};
+  form.onsubmit=ev=>{ev.preventDefault();saveLog(d)};
+  loadContacts(d); loadLlamados(d);
 }
 
-function renderKPIs(){
-  const list = selList();
-  // Retención total (mes cerrado seleccionado con el filtro de mes de arriba)
-  // = 100% - churn mensual, con la MISMA fuente y fórmula que el gráfico de churn
-  // (DATA.execs[ejecutivo].months, churn = (bajas del mes - recuperadas del mes) / activas
-  // al inicio del mes, ya validada contra medición manual) — así siempre coincide con el
-  // gráfico de churn del mismo mes. DATA.execs no tiene ago/sep 2025 todavía, así que para
-  // esos dos meses queda "s/d" (igual que el propio gráfico de churn).
-  let ai=0, churn=0;
-  list.forEach(e => { const d = (DATA.execs[e].months||{})[selectedMonth]; if (d) { ai+=d.ai; churn+=d.churn; } });
-  const retencion = ai ? (100 - (churn/ai*100)) : null;
-
-  // NRR promedio (promedio simple del NRR mensual a lo largo de todo el histórico mostrado, Oct 25-Ago 26)
-  const nrrMonthly = MONTHS_END.map(mo => {
-    let mrri=0, mrrf=0, mrrrec=0;
-    list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
-    return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
-  }).filter(v => v !== null);
-  const nrrProm = nrrMonthly.length ? (nrrMonthly.reduce((a,b)=>a+b,0)/nrrMonthly.length) : null;
-
-  // NRR del último mes cerrado (Ago 26) vs. el mes anterior (Jul 26)
-  const nrrForMonth = (mo) => {
-    let mrri=0, mrrf=0, mrrrec=0;
-    list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
-    return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
+/* ---------- Historial ---------- */
+async function loadLlamados(d){
+  if(chLlamados){sb.removeChannel(chLlamados);chLlamados=null}
+  const fetchIt=async()=>{
+    const {data,error}=await sb.from("llamados").select("*").eq("deal_id",d.id).order("fecha",{ascending:false});
+    if(selected!==d) return;
+    if(error){$("hist").innerHTML=`<li class="muted">No se pudo leer el historial: ${esc(error.message)}</li>`;return}
+    llamadosSel=data; renderHist();
   };
-  const lastMo = MONTHS_END[MONTHS_END.length-1], prevMo = MONTHS_END[MONTHS_END.length-2];
-  const nrrLast = nrrForMonth(lastMo);
-  const nrrPrevM = nrrForMonth(prevMo);
-  const nrrDeltaPP = (nrrLast !== null && nrrPrevM !== null) ? (nrrLast - nrrPrevM) : null;
-
-  // Cuentas activas ajustadas hoy vs mismo día mes anterior
-  // activasRaw = todas las cuentas (sales_count > 0) · activasAdj = sólo +50 ventas
-  const activasKey = salesView === 'adj' ? 'activasAdj' : 'activasRaw';
-  const bloqSnapKey = actField('bloqueadas'); // 'bloqueadas' (todas) o 'bloqueadasAdj' (+50)
-  let actToday=0, actPrev=0, blkToday=0, blkPrev=0;
-  list.forEach(e => {
-    const s = DATA.snapshot[e];
-    if (s) {
-      actToday += s.today ? s.today[activasKey] : 0;
-      actPrev  += s.prev  ? s.prev[activasKey]  : 0;
-      blkToday += s.today ? s.today[bloqSnapKey] : 0;
-      blkPrev  += s.prev  ? s.prev[bloqSnapKey]  : 0;
-    }
-  });
-  const actDeltaPct = actPrev ? ((actToday-actPrev)/actPrev*100) : null;
-  const blkDeltaPct = blkPrev ? ((blkToday-blkPrev)/blkPrev*100) : null;
-
-  // Recupero de bajas hoy vs ayer
-  const recTodayKey = salesView === 'adj' ? 'todayAdj' : 'today';
-  const recYestKey = salesView === 'adj' ? 'yesterdayAdj' : 'yesterday';
-  let recToday=0, recYesterday=0;
-  list.forEach(e => {
-    const r = DATA.recover[e];
-    if (r) { recToday += r[recTodayKey]||0; recYesterday += r[recYestKey]||0; }
-  });
-  const recDelta = recToday - recYesterday;
-
-  // Bloqueadas con intento de login reciente (≤7 días) — filtra por el mismo criterio de ventas
-  const loginByExec = (DATA.accountLists && DATA.accountLists.bloqueadasConLogin) || {};
-  const matchesSalesView = (acc) => salesView === 'adj' ? acc.s === true : true;
-  const bloqueadasConLoginCount = list.reduce((sum,e) => sum + ((loginByExec[e]||[]).filter(matchesSalesView).length), 0);
-
-  // Solicita baja este mes
-  let solBaja = 0;
-  list.forEach(e => { solBaja += DATA.solicitaBaja[e] || 0; });
-
-  const arrowHTML = (pct, goodIsUp, suffix) => {
-    if (pct === null) return `<span class="deltasub">s/d ${suffix}</span>`;
-    const up = pct >= 0;
-    const cls = (up === goodIsUp) ? 'up' : 'down';
-    const arrow = up ? '▲' : '▼';
-    return `<div class="delta ${cls}">${arrow} ${Math.abs(pct).toFixed(1)}% ${suffix}</div>`;
-  };
-  const arrowCount = (delta, goodIsUp, suffix) => {
-    const up = delta >= 0;
-    const cls = (up === goodIsUp) ? 'up' : 'down';
-    const arrow = delta === 0 ? '—' : (up ? '▲' : '▼');
-    return `<div class="delta ${cls}">${arrow} ${delta > 0 ? '+' : ''}${delta} ${suffix}</div>`;
-  };
-  const arrowPP = (deltaPP, goodIsUp, suffix) => {
-    if (deltaPP === null) return `<span class="deltasub">s/d ${suffix}</span>`;
-    const up = deltaPP >= 0;
-    const cls = (up === goodIsUp) ? 'up' : 'down';
-    const arrow = up ? '▲' : '▼';
-    return `<div class="delta ${cls}">${arrow} ${deltaPP>0?'+':''}${deltaPP.toFixed(1)}pp ${suffix}</div>`;
-  };
-
-  const svTag = ` <span style="font-weight:400; color:var(--ink-soft); font-size:11.5px;">(${salesView==='adj'?'+50 ventas':'todas las cuentas'})</span>`;
-  document.getElementById('kpiRow').innerHTML = `
-    <div class="kpi">
-      <div class="label">Retención total cartera (${monthLabelFor(selectedMonth).toLowerCase()}, cerrado)</div>
-      <div class="value">${retencion !== null ? retencion.toFixed(1)+'%' : 's/d'}</div>
-    </div>
-    <div class="kpi">
-      <div class="label">NRR último mes (${monthLabelFor(lastMo).toLowerCase()})</div>
-      <div class="value">${nrrLast !== null ? nrrLast.toFixed(1)+'%' : 's/d'}</div>
-      ${arrowPP(nrrDeltaPP, true, `vs. ${monthLabelFor(prevMo).toLowerCase()}`)}
-    </div>
-    <div class="kpi">
-      <div class="label">NRR promedio (Oct 25 – Ago 26)</div>
-      <div class="value">${nrrProm !== null ? nrrProm.toFixed(1)+'%' : 's/d'}</div>
-      <div class="footnote">Promedio simple del NRR mensual general en todo el histórico del tablero.</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Cuentas activas (hoy)${svTag}</div>
-      <div class="value">${actToday.toLocaleString('es-AR')}</div>
-      ${arrowHTML(actDeltaPct, true, 'vs. mismo día mes anterior')}
-      <div class="footnote">Retenidas del mes anterior + clientes existentes reactivados. Excluye altas nuevas, bloqueadas y bajas del mes.</div>
-    </div>
-    <div class="kpi clickable" id="kpiBloqueadasHoy">
-      <div class="label">Cuentas bloqueadas (hoy)${svTag}</div>
-      <div class="value">${blkToday.toLocaleString('es-AR')}</div>
-      ${arrowHTML(blkDeltaPct, false, 'vs. mismo día mes anterior')}
-    </div>
-    <div class="kpi clickable" id="kpiRecuperoBajas">
-      <div class="label">Recupero de bajas (hoy)${svTag}</div>
-      <div class="value">${recToday.toLocaleString('es-AR')}</div>
-      ${arrowCount(recDelta, true, 'vs. ayer')}
-      <div class="footnote">Cuentas de baja al inicio del mes que ahora están activas.</div>
-    </div>
-    <div class="kpi clickable" id="kpiBloqueadasConLogin">
-      <div class="label">Bloqueadas con intento de login (≤7 días)${svTag}</div>
-      <div class="value">${bloqueadasConLoginCount.toLocaleString('es-AR')}</div>
-      <div class="footnote">Estado comercial activo, Dash bloqueado, con login en los últimos 7 días — señal de que quieren volver.</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Solicitudes de baja (mes en curso)</div>
-      <div class="value">${solBaja.toLocaleString('es-AR')}</div>
-      <div class="footnote">Propiedad "requests_drop" de HubSpot = SI, con fecha en el mes en curso. Confirmar si esta es la propiedad correcta.</div>
-    </div>
-  `;
-  document.getElementById('kpiBloqueadasHoy').addEventListener('click', () => openAccountModal('Cuentas bloqueadas (hoy)', 'bloqueadasHoy'));
-  document.getElementById('kpiRecuperoBajas').addEventListener('click', () => openAccountModal('Recupero de bajas (hoy)', 'recuperoBajas'));
-  document.getElementById('kpiBloqueadasConLogin').addEventListener('click', () => openAccountModal('Bloqueadas con intento de login (≤7 días)', 'bloqueadasConLogin'));
+  await fetchIt();
+  chLlamados=sb.channel("llamados-"+d.id).on("postgres_changes",{event:"*",schema:"public",table:"llamados",filter:`deal_id=eq.${d.id}`},fetchIt).subscribe();
+}
+function planLine(l){
+  if(!l.activacion_inmediata) return "";
+  if(l.planilla_estado==="ok") return `<div class="hs ok">Activación inmediata cargada en la planilla de Administración${l.planilla_fila?` (fila ${l.planilla_fila})`:""}</div>`;
+  if(l.planilla_estado==="pendiente"||l.planilla_estado==="enviando") return `<div class="hs wait">Cargando activación en la planilla…</div>`;
+  const mine=l.por_email===(me.email||"").toLowerCase()||meRow.rol==="lider";
+  return `<div class="hs err">No se cargó la activación en la planilla: ${esc(l.planilla_detalle||"")}${mine?` <button type="button" data-retryp="${esc(l.id)}">Reintentar</button>`:""}</div>`;
+}
+function hsLine(l){
+  if(!l.hs_estado||l.hs_estado==="omitido") return "";
+  if(l.hs_estado==="ok"){const p=[l.hs_nota_id&&"nota",l.hs_tarea_id&&"tarea",l.hs_negocio_ok&&(l.submotivo?"Solicita Baja, motivo y submotivo en el negocio":"Solicita Baja y motivo en el negocio")].filter(Boolean);
+    return `<div class="hs ok">Guardado en HubSpot: ${p.join(", ")||"sin cambios"}</div>`}
+  if(l.hs_estado==="pendiente"||l.hs_estado==="enviando") return `<div class="hs wait">Enviando a HubSpot…</div>`;
+  const mine=l.por_email===(me.email||"").toLowerCase()||meRow.rol==="lider";
+  return `<div class="hs err">No se guardó en HubSpot: ${esc(l.hs_detalle||"")}${mine?` <button type="button" data-retry="${esc(l.id)}">Reintentar</button>`:""}</div>`;
+}
+function renderHist(){
+  const h=$("hist"); if(!h) return;
+  if(!llamadosSel.length){h.innerHTML=`<li class="muted">Todavía no hay llamados registrados para esta cuenta.</li>`;return}
+  h.innerHTML=llamadosSel.map(l=>{
+    const e=ESTADOS[l.estado]?l.estado:"pendiente";
+    const parts=[l.respuesta,l.propuesta&&("Propuesta: "+l.propuesta),l.activacion_inmediata&&"Activación inmediata",l.solicita_baja&&"Solicita baja",l.motivo&&("Motivo de baja: "+l.motivo),l.submotivo&&("Submotivo: "+l.submotivo)].filter(Boolean);
+    return `<li style="--c:${ESTADOS[e].color}">
+      <div class="when">${fmtDT(toD(l.fecha))}, intento ${l.intento||"–"}, ${esc(l.por_nombre||l.por_email)}${l.telefono?", "+esc(l.telefono):""}</div>
+      <div class="what">${esc(l.resultado)}${parts.length?" – "+esc(parts.join(", ")):""}</div>
+      ${l.proximo_llamado?`<div class="note">Volver a llamar el ${fmtD(dLocal(l.proximo_llamado))}</div>`:""}
+      ${l.notas?`<div class="note">${esc(l.notas)}</div>`:""}
+      ${hsLine(l)}${planLine(l)}</li>`;
+  }).join("");
+  h.querySelectorAll("button[data-retry]").forEach(b=>b.onclick=()=>{b.disabled=true;enviarHubSpot(b.dataset.retry)});
+  h.querySelectorAll("button[data-retryp]").forEach(b=>b.onclick=()=>{b.disabled=true;enviarPlanilla(b.dataset.retryp)});
 }
 
-function renderComposition(){
-  destroyChart('compChart');
-  const list = selList();
-  document.getElementById('compLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>INI</span><span class="item"><span class="dot" style="background:#eb6834"></span>PRO</span><span class="item"><span class="dot" style="background:#1baf7a"></span>ADV</span>';
-  const ini = list.map(e => (DATA.comp[e]||{}).ini || 0);
-  const pro = list.map(e => (DATA.comp[e]||{}).pro || 0);
-  const adv = list.map(e => (DATA.comp[e]||{}).adv || 0);
-  charts.compChart = new Chart(document.getElementById('compChart'), {
-    type:'bar',
-    data:{ labels:list, datasets:[
-      { label:'INI', data:ini, backgroundColor:'#2a78d6', borderRadius:3, stack:'s' },
-      { label:'PRO', data:pro, backgroundColor:'#eb6834', borderRadius:3, stack:'s' },
-      { label:'ADV', data:adv, backgroundColor:'#1baf7a', borderRadius:3, stack:'s' }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+c.parsed.y.toLocaleString('es-AR') } } },
-      scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:grid}} } }
-  });
+/* ---------- Guardar ---------- */
+let saving=false;
+async function saveLog(d){
+  if(saving) return;
+  const res=(document.querySelector('input[name="res"]:checked')||{}).value;
+  if(!res){toast("Elegí el resultado del llamado");return}
+  const resp=res==="Atendió"?((document.querySelector('input[name="resp"]:checked')||{}).value||""):"";
+  const baja=$("baja").checked, motivo=baja?$("mot").value:"", submotivo=baja?$("submot").value:"";
+  const act=!$("actBox").hidden&&$("actInm").checked;
+  if(baja&&!motivo){toast("Elegí el motivo de baja");$("mot").focus();return}
+  saving=true;$("btnSave").disabled=true;
+  const enviar=$("syncHs").checked;
+  const {data,error}=await sb.rpc("registrar_llamado",{p_deal_id:d.id,p_resultado:res,p_respuesta:resp,p_propuesta:$("prop").value,
+    p_motivo:motivo,p_telefono:$("tel").value.trim(),p_proximo:$("prox").value||null,p_notas:$("notas").value.trim(),p_enviar_hs:enviar,p_solicita_baja:baja,p_activacion:act,p_submotivo:submotivo||null});
+  saving=false; if($("btnSave")) $("btnSave").disabled=false;
+  if(error){toast("No se pudo guardar: "+error.message);return}
+  toast("Contacto guardado");
+  const tel=$("tel").value, prox=$("prox").value;
+  $("logForm").reset();$("respBox").hidden=true;$("motBox").hidden=true;$("actBox").hidden=true;$("tel").value=tel;$("prox").value=prox;$("syncHs").checked=true;
+  loadLlamados(d);
+  if((enviar||baja)&&data&&data.id) enviarHubSpot(data.id);
+  if(act&&data&&data.id) enviarPlanilla(data.id);
+}
+async function enviarPlanilla(id){
+  const {data,error}=await sb.functions.invoke("planilla-activacion",{body:{llamado_id:id}});
+  if(error) toast("No se pudo cargar en la planilla: "+await fnError(error));
+  else toast(`Activación cargada en la planilla${data&&data.fila?` (fila ${data.fila})`:""}`);
+  if(selected) loadLlamados(selected);
+}
+async function enviarHubSpot(id){
+  const {data,error}=await sb.functions.invoke("hubspot-llamado",{body:{llamado_id:id}});
+  if(error){toast("No se pudo guardar en HubSpot: "+await fnError(error))}
+  else{const p=[data&&data.hs_nota_id&&"nota",data&&data.hs_tarea_id&&"tarea",data&&data.hs_negocio_ok&&"solicitud de baja"].filter(Boolean);toast(p.length?"Guardado en HubSpot: "+p.join(", "):"HubSpot actualizado")}
+  if(selected) loadLlamados(selected);
 }
 
-function renderChurnExec(){
-  destroyChart('churnChart');
-  const list = selList();
-  if (churnByExec) {
-    document.getElementById('churnLegend').innerHTML = legendHTML(list);
-    const datasets = list.map(e => {
-      const m = DATA.execs[e].months;
-      const data = MONTHS_END.map(mo => { const d = m[mo]; return (d && d.ai) ? (d.churn/d.ai*100) : null; });
-      return { label:e, data, borderColor:DATA.colors[e], backgroundColor:DATA.colors[e], borderWidth:2, pointRadius:3, tension:0.15 };
-    });
-    charts.churnChart = new Chart(document.getElementById('churnChart'), {
-      type:'line', data:{ labels:MONTHS_LABEL, datasets },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
-        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-    });
-  } else {
-    document.getElementById('churnLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2f6f5e"></span>Churn general</span>';
-    const data = MONTHS_END.map(mo => {
-      let ai=0, churn=0;
-      list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { ai+=d.ai; churn+=d.churn; } });
-      return ai ? (churn/ai*100) : null;
-    });
-    charts.churnChart = new Chart(document.getElementById('churnChart'), {
-      type:'line', data:{ labels:MONTHS_LABEL, datasets:[
-        { label:'Churn general', data, borderColor:'#2f6f5e', backgroundColor:'#2f6f5e', borderWidth:2.5, pointRadius:3, tension:0.15 }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
-        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-    });
-  }
-}
-
-function renderNRR(){
-  destroyChart('nrcChart');
-  const list = selList();
-  if (nrrByExec) {
-    document.getElementById('nrcLegend').innerHTML = legendHTML(list);
-    const mrriByExec = {}, mrrfFinalByExec = {};
-    const nrcData = list.map(e => {
-      const m = DATA.execs[e].months;
-      const mrriArr = MONTHS_END.map(mo => (m[mo]||{}).mrri || null);
-      const mrrfFinalArr = MONTHS_END.map(mo => { const d = m[mo]; return d ? (d.mrrf + (d.mrrrec||0)) : null; });
-      mrriByExec[e] = mrriArr; mrrfFinalByExec[e] = mrrfFinalArr;
-      const data = MONTHS_END.map((mo,i) => mrriArr[i] ? (mrrfFinalArr[i]/mrriArr[i]*100) : null);
-      return { label:e, data, backgroundColor:DATA.colors[e], borderRadius:3 };
-    });
-    charts.nrcChart = new Chart(document.getElementById('nrcChart'), {
-      type:'bar', data:{ labels:MONTHS_LABEL, datasets:nrcData },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{
-          label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d'),
-          afterLabel:(c)=>{ const mrri=mrriByExec[c.dataset.label][c.dataIndex], mrrf=mrrfFinalByExec[c.dataset.label][c.dataIndex];
-            return (mrri!=null && mrrf!=null) ? `MRR: ${fmtUSD(mrrf)} de ${fmtUSD(mrri)} inicial` : ''; }
-        } } },
-        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-    });
-  } else {
-    document.getElementById('nrcLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2f6f5e"></span>NRR general</span>';
-    const mrriArr = [], mrrfFinalArr = [];
-    const data = MONTHS_END.map(mo => {
-      let mrri=0, mrrf=0, mrrrec=0;
-      list.forEach(e => { const d = DATA.execs[e].months[mo]; if (d) { mrri+=d.mrri; mrrf+=d.mrrf; mrrrec+=(d.mrrrec||0); } });
-      mrriArr.push(mrri||null); mrrfFinalArr.push(mrri ? (mrrf+mrrrec) : null);
-      return mrri ? ((mrrf+mrrrec)/mrri*100) : null;
-    });
-    charts.nrcChart = new Chart(document.getElementById('nrcChart'), {
-      type:'bar', data:{ labels:MONTHS_LABEL, datasets:[
-        { label:'NRR general', data, backgroundColor:'#2f6f5e', borderRadius:3 }
-      ]},
-      plugins:[ChartDataLabels],
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false},
-          tooltip:{ callbacks:{
-            label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'s/d'),
-            afterLabel:(c)=>{ const mrri=mrriArr[c.dataIndex], mrrf=mrrfFinalArr[c.dataIndex];
-              return (mrri!=null && mrrf!=null) ? `MRR: ${fmtUSD(mrrf)} de ${fmtUSD(mrri)} inicial` : ''; }
-          } },
-          datalabels:{ display:(c)=>mrrfFinalArr[c.dataIndex]!=null, anchor:'end', align:'top', offset:2,
-            color:'#5b6058', font:{size:9.5}, formatter:(v,c)=>fmtUSD(mrrfFinalArr[c.dataIndex]) }
-        },
-        scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-    });
-  }
-}
-
-function sumTeamPlanData(scope){
-  if (scope !== 'mixed') return DATA.churnPlan[scope] || {};
-  const out = {};
-  ['ini','pro','adv'].forEach(plan => {
-    out[plan] = {};
-    MONTHS_END.forEach(mo => {
-      const e = (DATA.churnPlan.engagement[plan]||{})[mo] || {ai:0, churn:0};
-      const o = (DATA.churnPlan.onboarding[plan]||{})[mo] || {ai:0, churn:0};
-      out[plan][mo] = { ai: e.ai + o.ai, churn: e.churn + o.churn };
-    });
-  });
-  return out;
-}
-function sumCohortData(scope){
-  if (scope !== 'mixed') return DATA.cohort[scope] || {};
-  const out = {};
-  ['3','6','12'].forEach(k => {
-    out[k] = {};
-    MONTHS_END.forEach(mo => {
-      const e = (DATA.cohort.engagement[k]||{})[mo] || {size:0, ret:0};
-      const o = (DATA.cohort.onboarding[k]||{})[mo] || {size:0, ret:0};
-      out[k][mo] = { size: e.size + o.size, ret: e.ret + o.ret };
-    });
-  });
-  return out;
-}
-
-function renderTeamScoped(){
-  destroyChart('churnPlanChart'); destroyChart('cohortChart');
-  const scope = scopeTeams() || 'engagement';
-  const cp = sumTeamPlanData(scope);
-  document.getElementById('churnPlanLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>INI</span><span class="item"><span class="dot" style="background:#eb6834"></span>PRO</span><span class="item"><span class="dot" style="background:#1baf7a"></span>ADV</span>';
-  const planData = (plan) => MONTHS_END.map(mo => { const d = (cp[plan]||{})[mo]; return d && d.ai ? (d.churn/d.ai*100) : null; });
-  charts.churnPlanChart = new Chart(document.getElementById('churnPlanChart'), {
-    type:'line',
-    data:{ labels:MONTHS_LABEL, datasets:[
-      { label:'INI', data:planData('ini'), borderColor:'#2a78d6', backgroundColor:'#2a78d6', borderWidth:2, pointRadius:3, tension:0.15 },
-      { label:'PRO', data:planData('pro'), borderColor:'#eb6834', backgroundColor:'#eb6834', borderWidth:2, pointRadius:3, tension:0.15 },
-      { label:'ADV', data:planData('adv'), borderColor:'#1baf7a', backgroundColor:'#1baf7a', borderWidth:2, pointRadius:3, tension:0.15 }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-  });
-
-  const cohortSrc = sumCohortData('mixed');
-  document.getElementById('cohortLegend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>M3</span><span class="item"><span class="dot" style="background:#eb6834"></span>M6</span><span class="item"><span class="dot" style="background:#1baf7a"></span>M12</span>';
-  const mData = (k) => MONTHS_END.map(mo => { const d = (cohortSrc[String(k)]||{})[mo]; return d && d.size ? (d.ret/d.size*100) : null; });
-  charts.cohortChart = new Chart(document.getElementById('cohortChart'), {
-    type:'line',
-    data:{ labels:MONTHS_LABEL, datasets:[
-      { label:'M3', data:mData(3), borderColor:'#2a78d6', backgroundColor:'#2a78d6', borderWidth:2, pointRadius:3, tension:0.15 },
-      { label:'M6', data:mData(6), borderColor:'#eb6834', backgroundColor:'#eb6834', borderWidth:2, pointRadius:3, tension:0.15 },
-      { label:'M12', data:mData(12), borderColor:'#1baf7a', backgroundColor:'#1baf7a', borderWidth:2, pointRadius:3, tension:0.15 }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{min:0, max:100, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-  });
-  document.getElementById('teamScopedNote').textContent = 'Engagement + Onboarding combinados (todas las etapas)';
-  document.getElementById('cohortCaveat').style.display = 'block';
-  document.getElementById('gradSection').style.display = (scope==='engagement') ? 'none' : 'block';
-  if (scope !== 'engagement') renderGraduations();
-}
-
-function renderN1N2(){
-  destroyChart('n1n2Chart');
-  const list = selList();
-  document.getElementById('n1n2Legend').innerHTML = '<span class="item"><span class="dot" style="background:#2a78d6"></span>Retención N1</span><span class="item"><span class="dot" style="background:#eb6834"></span>Retención N2</span>';
-  const n1pct = MONTHS_END.map(mo => {
-    let ai=0, n1=0;
-    list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { ai+=d.ai; n1+=d.n1; } });
-    return ai ? (n1/ai*100) : null;
-  });
-  const n2pct = MONTHS_END.map(mo => {
-    let ai=0, n2=0;
-    list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { ai+=d.ai; n2+=d.n2; } });
-    return ai ? (n2/ai*100) : null;
-  });
-  charts.n1n2Chart = new Chart(document.getElementById('n1n2Chart'), {
-    type:'line',
-    data:{ labels:MONTHS_LABEL, datasets:[
-      { label:'Retención N1', data:n1pct, borderColor:'#2a78d6', backgroundColor:'#2a78d6', borderWidth:2, pointRadius:3, tension:0.15 },
-      { label:'Retención N2', data:n2pct, borderColor:'#eb6834', backgroundColor:'#eb6834', borderWidth:2, pointRadius:3, tension:0.15 }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(2)+'%':'s/d') } } },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-  });
-}
-
-function renderRecupero(){
-  destroyChart('recChart');
-  const list = selList();
-  document.getElementById('recLegend').innerHTML = '<span class="item"><span class="dot" style="background:#1baf7a"></span>Cuentas recuperadas</span>';
-  const droppedArr = [];
-  const data = MONTHS_END.map(mo => {
-    let dropped=0, rec=0;
-    list.forEach(e => { const d = (DATA.n1n2m[e]||{})[mo]; if (d) { dropped+=d.dropped; rec+=d.rec; } });
-    droppedArr.push(dropped||null);
-    return dropped ? rec : null;
-  });
-  charts.recChart = new Chart(document.getElementById('recChart'), {
-    type:'bar',
-    data:{ labels:MONTHS_LABEL, datasets:[
-      { label:'Cuentas recuperadas', data, backgroundColor:'#1baf7a', borderRadius:3 }
-    ]},
-    plugins:[ChartDataLabels],
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false},
-        tooltip:{ callbacks:{
-          label:(c)=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toLocaleString('es-AR'):'s/d'),
-          afterLabel:(c)=>{ const dropped=droppedArr[c.dataIndex], rec=c.parsed.y;
-            return (dropped!=null && rec!=null) ? `${((rec/dropped)*100).toFixed(2)}% de ${dropped} dadas de baja` : ''; }
-        } },
-        datalabels:{ display:(c)=>data[c.dataIndex]!=null, anchor:'end', align:'top', offset:2,
-          color:'#5b6058', font:{size:9.5}, formatter:(v)=>v.toLocaleString('es-AR') }
-      },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0}}, y:{beginAtZero:true, grid:{color:grid}} } }
-  });
-}
-
-const GRAD_MONTHS = ['2025-09-01','2025-10-01','2025-11-01','2026-01-01','2026-02-01','2026-03-01','2026-04-01','2026-05-01','2026-06-01','2026-07-01','2026-08-01'];
-const GRAD_LABELS = ['Sep 25','Oct 25','Nov 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26','Jul 26','Ago 26'];
-function renderGraduations(){
-  destroyChart('gradChart');
-  const execsG = Object.keys(DATA.grad).filter(e => selectedExecs.has(e));
-  const list = execsG.length ? execsG : Object.keys(DATA.grad);
-  document.getElementById('gradLegend').innerHTML = legendHTML(list);
-  const datasets = list.map(e => ({
-    label:e, data:GRAD_MONTHS.map(mo => DATA.grad[e][mo] ?? 0),
-    backgroundColor:DATA.colors[e], borderRadius:3
+/* ---------- Contactos ---------- */
+async function loadContacts(d){
+  const box=$("contacts");
+  const {data,error}=await sb.functions.invoke("contactos",{body:{deal_id:d.id}});
+  if(selected!==d) return;
+  if(error){box.innerHTML=`<p class="muted">No se pudieron traer los contactos: ${esc(await fnError(error))}</p>`;return}
+  const items=(data&&data.contactos)||[];
+  if(!items.length){box.innerHTML=`<p class="muted">Esta cuenta no tiene contactos con teléfono en HubSpot.</p>`;return}
+  box.innerHTML=items.map((it,i)=>{
+    const ph=it.telefono?"+"+it.telefono:"";
+    const info=it.intercom_url?("En Intercom"+(it.intercom_ultimo_contacto?`: último contacto ${fmtD(new Date(it.intercom_ultimo_contacto*1000))}`:"")):
+      (it.intercom_error?it.intercom_error:"No está en Intercom con este dato. El número se copia al hacer clic.");
+    const href=it.intercom_url||"https://app.intercom.com/a/apps/ti1ln81q/inbox";
+    return `<div class="contact">
+      <div class="who"><div class="nm">${esc(it.nombre)}${it.rol?` <span class="muted" style="font-weight:400">(${esc(it.rol)})</span>`:""}</div>
+        <div class="ph">${ph?esc(ph):"Sin teléfono"}${it.email?", "+esc(it.email):""}</div>
+        <div class="ic">${esc(info)}</div></div>
+      <div class="call-actions">${ph?`<a class="call" href="${esc(href)}" target="_blank" rel="noopener" data-phone="${esc(ph)}">${it.intercom_url?"Llamar en Intercom":"Abrir Intercom"}</a>
+        <a class="mini" href="tel:${esc(ph)}" title="Abrir con la app de teléfono predeterminada">tel</a>`:""}</div></div>`;
+  }).join("");
+  box.querySelectorAll("a.call").forEach(a=>a.addEventListener("click",()=>{
+    const ph=a.dataset.phone; try{navigator.clipboard.writeText(ph)}catch(e){}
+    $("tel").value=ph; toast("Número copiado: "+ph);
   }));
-  charts.gradChart = new Chart(document.getElementById('gradChart'), {
-    type:'bar', data:{ labels:GRAD_LABELS, datasets },
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+c.parsed.y+' cuentas' } } },
-      scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:grid}} } }
-  });
 }
 
-function renderUnlockCurve(){
-  destroyChart('unlockChart');
-  const rt = DATA.retentionTarget;
-  const curve = (rt && rt.unlockCurve) || [];
-  if (!curve.length) return;
-  document.getElementById('unlockLegend').innerHTML = '<span class="item"><span class="dot" style="background:#b3781c"></span>% aún bloqueadas</span><span class="item"><span class="dot" style="background:#2f6f5e"></span>% recuperadas</span>';
-  const labels = curve.map(c => `Día +${c.off}`);
-  charts.unlockChart = new Chart(document.getElementById('unlockChart'), {
-    type:'line',
-    data:{ labels, datasets:[
-      { label:'% aún bloqueadas', data:curve.map(c=>c.bloqueadasPct), borderColor:'#b3781c', backgroundColor:'#b3781c', borderWidth:2, pointRadius:0, tension:0.2 },
-      { label:'% recuperadas', data:curve.map(c=>c.activasPct), borderColor:'#2f6f5e', backgroundColor:'#2f6f5e', borderWidth:2, pointRadius:0, tension:0.2 }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' } } },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:8}}, y:{min:0, max:100, grid:{color:grid}, ticks:{callback:(v)=>v+'%'}} } }
-  });
-  document.getElementById('unlockDesc').textContent = (rt.unlockCurveNote||'') + '. Día +0 = pico de bloqueos (' + (rt.peakLabel||'') + '). La proyección del velocímetro usa el último punto de esta curva (fin de mes).';
+/* ---------- Menú ---------- */
+function setMenu(open){$("menu").hidden=!open;$("btnMenu").setAttribute("aria-expanded",open);if(open){const f=$("menu").querySelector("button:not([hidden])");f&&f.focus()}}
+$("btnMenu").onclick=e=>{e.stopPropagation();setMenu($("menu").hidden)};
+document.addEventListener("click",e=>{if(!$("menu").hidden&&!e.target.closest(".menu-wrap"))setMenu(false)});
+$("menu").addEventListener("click",e=>{if(e.target.closest("button"))setTimeout(()=>setMenu(false),0)});
+$("menu").addEventListener("keydown",e=>{
+  const items=[...$("menu").querySelectorAll("button:not([hidden])")], i=items.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();items[(i+1)%items.length].focus()}
+  else if(e.key==="ArrowUp"){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
+  else if(e.key==="Escape"){e.stopPropagation();setMenu(false);$("btnMenu").focus()}
+});
+
+/* ---------- Avance del equipo (solo líderes) ---------- */
+function setVista(v){
+  vista=v; $("tabLlamados").setAttribute("aria-pressed",v==="llamados"); $("tabAvance").setAttribute("aria-pressed",v==="avance");
+  $("callView").hidden=v!=="llamados"; $("adminView").hidden=v!=="avance";
+  if(v==="avance") renderAdmin();
 }
-
-const MONTH_ABBR = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-function renderProjection(){
-  destroyChart('projChart');
-  const rt = DATA.retentionTarget;
-  if (!rt) return;
-  const curve = (rt.unlockCurve) || [];
-  if (!curve.length) return;
-  const list = selList();
-
-  // Mismos totales que "Objetivo de retención" (base fija del día 1, bloqueadas hoy, etc.)
-  let bloqueadasPico = 0, bloqueadasHoy = 0, base = 0;
-  list.forEach(e => { const p = rt.progress[e]; if (p) {
-    bloqueadasPico += p.bloqueadasPico; bloqueadasHoy += p.bloqueadasHoy; base += p.baseDia1;
-  } });
-  const allowedLossCount = base * (1 - rt.target);
-  const faltantesFn = (bloq) => Math.max(0, Math.round(bloq - allowedLossCount));
-
-  const peakDayNum = parseInt((rt.peakLabel || '').match(/\d+/)?.[0] || '1', 10);
-  const refreshDate = DATA.lastRefreshed ? new Date(DATA.lastRefreshed) : new Date();
-  const todayOffsetRaw = refreshDate.getUTCDate() - peakDayNum;
-  const todayOffset = Math.max(0, todayOffsetRaw);
-  const daysInMonth = new Date(Date.UTC(refreshDate.getUTCFullYear(), refreshDate.getUTCMonth()+1, 0)).getUTCDate();
-  const endOffset = Math.max(todayOffset, daysInMonth - peakDayNum);
-
-  // % de la cartera bloqueada que la curva histórica predice para cada offset (día desde el pico),
-  // extendiendo el último tramo observado (plateau) más allá de lo que cubre la curva.
-  const curvePctAt = (o) => {
-    if (o <= 0) return curve[0].bloqueadasPct;
-    if (o < curve.length) return curve[o].bloqueadasPct;
-    return curve[curve.length-1].bloqueadasPct;
-  };
-
-  // Calibración: reescalamos la curva promedio para que, en el offset de hoy, coincida
-  // con el dato REAL de hoy (bloqueadasHoy) en vez de usar el promedio histórico a ciegas.
-  const pctHoyCurva = curvePctAt(todayOffset);
-  const projectedHoySinCalibrar = bloqueadasPico * (pctHoyCurva/100);
-  const factor = projectedHoySinCalibrar > 0 ? (bloqueadasHoy / projectedHoySinCalibrar) : 1;
-
-  const finalIdx = endOffset;
-  let midIdx = Math.round((todayOffset + endOffset) / 2);
-  if (midIdx <= todayOffset + 1 || midIdx >= finalIdx - 1) midIdx = -1; // muy cerca de los otros dos, no lo marcamos
-
-  const labels = [], dataFaltantes = [], pointKind = []; // pointKind: 'today' | 'mid' | 'final' | null
-  for (let o = 0; o <= endOffset; o++){
-    const calDay = Math.min(peakDayNum + o, daysInMonth);
-    const d = new Date(Date.UTC(refreshDate.getUTCFullYear(), refreshDate.getUTCMonth(), calDay));
-    labels.push(`${calDay} ${MONTH_ABBR[d.getUTCMonth()]}`);
-    const bloqueadasEstimadas = (o === todayOffset) ? bloqueadasHoy : (bloqueadasPico * (curvePctAt(o)/100) * factor);
-    dataFaltantes.push(faltantesFn(bloqueadasEstimadas));
-    pointKind.push(o === todayOffset ? 'today' : (o === midIdx ? 'mid' : (o === finalIdx ? 'final' : null)));
+$("tabLlamados").onclick=()=>setVista("llamados");
+$("tabAvance").onclick=()=>setVista("avance");
+async function loadAllLlamados(){
+  const all=[]; let from=0;
+  for(;;){
+    const {data,error}=await sb.from("llamados").select("deal_id,fecha,resultado,respuesta,propuesta,motivo,solicita_baja,estado,por_email,por_nombre").order("fecha",{ascending:false}).range(from,from+999);
+    if(error) throw error; all.push(...data); if(data.length<1000) break; from+=1000;
   }
+  return all;
+}
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+function hbars(el,items,color){
+  const max=Math.max(1,...items.map(i=>i.n));
+  el.innerHTML=items.length?items.map(i=>`<div class="hrow"><div class="nm" title="${esc(i.label)}">${esc(i.label)}</div>
+    <div class="hbar"><span style="width:${i.n/max*100}%;background:${color}"></span></div><div class="val">${fmtN(i.n)}</div></div>`).join(""):`<div class="empty-ch">Todavía no hay datos.</div>`;
+}
+async function renderAdmin(){
+  if(meRow.rol!=="lider") return;
+  $("kpis").innerHTML=`<div class="kpi"><div class="k">Cargando…</div></div>`;
+  let ll=[];
+  try{ ll=await loadAllLlamados() }catch(e){ $("kpis").innerHTML=`<div class="kpi"><div class="k">No se pudieron leer los llamados</div><div class="s">${esc(e.message)}</div></div>`; return }
+  const base=baseFiltered();
+  const ids=new Set(base.map(d=>d.id)); const llC=ll.filter(l=>ids.has(l.deal_id));
+  const total=base.length, est={}; Object.keys(ESTADOS).forEach(k=>est[k]=0); base.forEach(d=>est[estadoDe(d.id)]++);
+  const gest=total-est.pendiente, atend=llC.filter(l=>l.resultado==="Atendió").length;
+  const cuentasContactadas=new Set(llC.filter(l=>l.resultado==="Atendió").map(l=>l.deal_id)).size;
+  // Bajas generadas por la campaña: todo el historial, incluidas las cuentas que ya salieron de la lista
+  const bajaPorCuenta=new Map(); ll.filter(l=>l.solicita_baja).forEach(l=>{if(!bajaPorCuenta.has(l.deal_id))bajaPorCuenta.set(l.deal_id,l)});
+  const bajasCampana=bajaPorCuenta.size;
+  const k=(t,v,s)=>`<div class="kpi"><div class="k">${t}</div><div class="v">${v}</div>${s?`<div class="s">${s}</div>`:""}</div>`;
+  $("kpis").innerHTML=k("Cuentas en campaña",fmtN(total))+k("Gestionadas",pct(gest,total)+"%",fmtN(gest)+" cuentas")+
+    k("Contactadas",fmtN(cuentasContactadas),pct(cuentasContactadas,total)+"% de las cuentas")+k("Llamados",fmtN(llC.length),"Tasa de atención "+pct(atend,llC.length)+"%")+
+    k("Aceptan propuesta",fmtN(est.acepta),fmtN(est.regularizo)+" ya regularizaron")+k("Bajas generadas por la campaña",fmtN(bajasCampana),"Total de la campaña");
 
-  document.getElementById('projLegend').innerHTML = '<span class="item"><span class="dot" style="background:#b23b3b"></span>Cuentas faltantes estimadas</span><span class="item"><span class="dot" style="background:#2a2a24"></span>Hoy (dato real)</span>';
+  // Avance por ejecutivo (dueño de la cuenta)
+  const byE={}; base.forEach(d=>{const e=d.ejec;(byE[e]=byE[e]||{total:0,est:{}}).total++;const s=estadoDe(d.id);byE[e].est[s]=(byE[e].est[s]||0)+1});
+  const orden=Object.keys(ESTADOS).filter(s=>s!=="pendiente").concat("pendiente");
+  const filas=Object.entries(byE).sort((a,b)=>b[1].total-a[1].total);
+  $("chEjec").innerHTML=filas.map(([n,v])=>{const g=v.total-(v.est.pendiente||0);
+    return `<div class="hrow"><div class="nm" title="${esc(n)}">${esc(n)}</div>
+    <div class="hbar">${orden.map(s=>v.est[s]?`<span title="${esc(ESTADOS[s].label)}: ${v.est[s]}" style="width:${v.est[s]/v.total*100}%;background:${ESTADOS[s].color}"></span>`:"").join("")}</div>
+    <div class="val">${pct(g,v.total)}% de ${v.total}</div></div>`}).join("");
+  $("chEjecLegend").innerHTML=orden.map(s=>`<span class="chip" style="cursor:default"><span class="dot" style="background:${ESTADOS[s].color}"></span>${esc(ESTADOS[s].label)}</span>`).join("");
 
-  const kindLabel = (k, v) => k==='today' ? `Hoy: ${v.toLocaleString('es-AR')}` : (k==='final' ? `Fin de mes: ${v.toLocaleString('es-AR')}` : `${v.toLocaleString('es-AR')}`);
+  // Actividad por persona que llamó
+  const byP={}; llC.forEach(l=>{const n=l.por_nombre||l.por_email;const o=byP[n]=byP[n]||{ll:0,at:0,cu:new Set(),ac:0,ba:0};o.ll++;if(l.resultado==="Atendió")o.at++;o.cu.add(l.deal_id);if(l.respuesta==="Acepta")o.ac++});
+  ll.filter(l=>l.solicita_baja&&bajaPorCuenta.get(l.deal_id)===l).forEach(l=>{const n=l.por_nombre||l.por_email;const o=byP[n]=byP[n]||{ll:0,at:0,cu:new Set(),ac:0,ba:0};o.ba++});
+  const act=Object.entries(byP).sort((a,b)=>b[1].ll-a[1].ll), maxL=Math.max(1,...act.map(a=>a[1].ll));
+  $("chAct").innerHTML=act.length?`<div class="tscroll"><table class="acttable"><thead><tr><th>Persona</th><th>Llamados</th><th>Cuentas</th><th>Atendidos</th><th>Aceptan</th><th>Bajas</th></tr></thead><tbody>${
+    act.map(([n,o])=>`<tr><td>${esc(n)}</td><td>${fmtN(o.ll)}<span class="mb" style="width:${Math.max(4,o.ll/maxL*60)}px"></span></td><td>${fmtN(o.cu.size)}</td><td>${fmtN(o.at)} <span class="muted">(${pct(o.at,o.ll)}%)</span></td><td>${fmtN(o.ac)}</td><td>${fmtN(o.ba)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty-ch">Todavía no hay llamados registrados.</div>`;
 
-  charts.projChart = new Chart(document.getElementById('projChart'), {
-    type:'line',
-    data:{ labels, datasets:[
-      { label:'Cuentas faltantes para objetivo', data:dataFaltantes, borderColor:'#b23b3b', backgroundColor:'rgba(178,59,59,0.12)', borderWidth:2, fill:true, tension:0.25,
-        pointRadius:(c)=>pointKind[c.dataIndex]==='today'?5:(pointKind[c.dataIndex]?3.5:0), pointHoverRadius:(c)=>pointKind[c.dataIndex]==='today'?6:4,
-        pointBackgroundColor:(c)=>pointKind[c.dataIndex]==='today'?'#2a2a24':'#b23b3b', pointBorderColor:(c)=>pointKind[c.dataIndex]==='today'?'#2a2a24':'#b23b3b' }
-    ]},
-    plugins:[ChartDataLabels],
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false},
-        tooltip:{ callbacks:{
-          label:(c)=>`${c.parsed.y.toLocaleString('es-AR')} cuentas faltantes${pointKind[c.dataIndex]==='today'?' (dato real de hoy)':' (estimado)'}`
-        } },
-        datalabels:{ display:(c)=>!!pointKind[c.dataIndex], anchor:'end',
-          align:(c)=>pointKind[c.dataIndex]==='final'?'left':'top', offset:6, color:'#2a2a24', font:{size:11, weight:'600'},
-          formatter:(v,c)=>kindLabel(pointKind[c.dataIndex], v) }
-      },
-      layout:{ padding:{top:18, right:10} },
-      scales:{ x:{grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:10}}, y:{beginAtZero:true, grid:{color:grid}} } }
+  // Llamados por día, últimos 14 días
+  const dias=[]; for(let i=13;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);dias.push(d)}
+  const key=d=>d.toLocaleDateString("en-CA");
+  const cnt={}; llC.forEach(l=>{const kk=key(new Date(l.fecha));const o=cnt[kk]=cnt[kk]||{at:0,no:0};l.resultado==="Atendió"?o.at++:o.no++});
+  const maxD=Math.max(1,...dias.map(d=>{const o=cnt[key(d)];return o?o.at+o.no:0}));
+  $("chDias").innerHTML=`<div class="cols">${dias.map(d=>{const o=cnt[key(d)]||{at:0,no:0},t=o.at+o.no,h=140;
+    return `<div class="col" title="${fmtD(d)}: ${t} llamados, ${o.at} atendidos"><div class="n">${t||""}</div>
+      <div class="stack" style="height:${t/maxD*h}px"><span style="height:${t?o.at/t*100:0}%;background:var(--brand)"></span><span style="height:${t?o.no/t*100:0}%;background:var(--s-pend)"></span></div>
+      <div class="d">${d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})}</div></div>`}).join("")}</div>`;
+
+  // Propuestas aceptadas y motivos de baja (último estado de cada cuenta)
+  const gs=base.map(d=>gestion[d.id]).filter(Boolean);
+  const prop={}; gs.filter(g=>g.estado==="acepta"&&g.propuesta).forEach(g=>prop[g.propuesta]=(prop[g.propuesta]||0)+1);
+  hbars($("chProp"),PROPUESTAS.map(p=>({label:p,n:prop[p]||0})),"var(--s-acep)");
+  const mot={}; bajaPorCuenta.forEach(l=>{const m=l.motivo||"Sin motivo";mot[m]=(mot[m]||0)+1});
+  hbars($("chMot"),Object.entries(mot).sort((a,b)=>b[1]-a[1]).map(([l,n])=>({label:l,n})),"var(--s-rech)");
+}
+
+/* ---------- Sync manual, export, equipo ---------- */
+$("btnRefresh").onclick=async()=>{
+  const b=$("btnRefresh"); b.disabled=true; b.textContent="Actualizando…"; toast("Actualizando desde HubSpot…");
+  const {data,error}=await sb.functions.invoke("sync-cuentas",{body:{}});
+  b.disabled=false; b.textContent="Actualizar desde HubSpot";
+  if(error){const m=await fnError(error);banner("No se pudo actualizar desde HubSpot: "+esc(m),"err");return}
+  banner(""); toast(`${fmtN(data.cuentas)} cuentas actualizadas`); loadCuentas(); loadSyncInfo();
+};
+["fEjec","fSort","fSus"].forEach(id=>$(id).addEventListener("change",render));
+$("fQ").addEventListener("input",render);
+$("btnExport").onclick=()=>{
+  const cols=["Cuenta","ID cuenta","Ejecutivo","Suscripción activa","Plan","Ventas","Última venta","Días sin vender","Último login","Días sin login","Gestión","Intentos","Último intento","Último resultado","Respuesta","Propuesta","Solicita baja","Motivo de baja","Submotivo de baja","Próximo llamado"];
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const rows=sortList(baseFiltered()).map(d=>{const g=gestion[d.id]||{};return [d.name,d.accountId,d.ejec,d.sus===true?"Sí":d.sus===false?"No":"",d.plan,d.ventas,fmtD(d.lastSale),d.daysNoSale,d.lastLogin?fmtD(d.lastLogin):"",d.daysNoLogin,ESTADOS[estadoDe(d.id)].label,g.intentos||0,g.ultimo_intento?fmtDT(toD(g.ultimo_intento)):"",g.ultimo_resultado,g.respuesta,g.propuesta,g.solicita_baja?"Sí":"",g.motivo,g.submotivo,g.proximo_llamado]});
+  const csv="\uFEFF"+[cols,...rows].map(r=>r.map(q).join(";")).join("\r\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="gestion-bloqueadas-activas.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+const genPass=()=>{const c="abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";const r=crypto.getRandomValues(new Uint32Array(12));return Array.from(r,x=>c[x%c.length]).join("")};
+async function loadTeam(){
+  const {data,error}=await sb.from("equipo").select("*").order("nombre");
+  if(error){$("teamList").innerHTML=`<p class="muted">${esc(error.message)}</p>`;return}
+  const yo=(me.email||"").toLowerCase();
+  $("teamList").innerHTML=data.map(r=>`<div class="team-row"><div><b>${esc(r.nombre||r.email)}</b><div class="muted">${esc(r.email)}, ${r.rol==="lider"?"líder":"ejecutivo"}${r.activo?"":", sin acceso"}</div></div>
+    ${r.email===yo?"":`<div class="acts"><button class="btn" type="button" data-pw="${esc(r.email)}">Nueva contraseña</button>
+    <button class="btn" type="button" data-t="${esc(r.email)}" data-a="${r.activo?"0":"1"}">${r.activo?"Quitar acceso":"Dar acceso"}</button></div>`}</div>`).join("");
+  $("teamList").querySelectorAll("button[data-t]").forEach(b=>b.onclick=async()=>{
+    const {error}=await sb.from("equipo").update({activo:b.dataset.a==="1"}).eq("email",b.dataset.t);
+    if(error) toast(error.message); loadTeam();
   });
-
-  const fechaFinCurva = labels[Math.min(curve.length-1, endOffset)];
-  document.getElementById('projDesc').textContent =
-    `Curva de desbloqueo promedio (marzo–agosto 2026) reescalada para calibrar con el dato real de hoy (${bloqueadasHoy.toLocaleString('es-AR')} bloqueadas vs. ${bloqueadasPico.toLocaleString('es-AR')} en el pico). ` +
-    `Faltantes = bloqueadas estimadas − máximo permitido (2% de la base fija). ` +
-    (endOffset >= curve.length ? `A partir del ${fechaFinCurva} se asume el mismo ritmo de recuperación que el último tramo observado históricamente (no hay más datos de la curva).` : '');
-}
-
-function renderAll(){
-  if (selList().length === 0) return; // esperar a que marquen al menos uno
-  renderObjetivo();
-  renderUnlockCurve();
-  renderProjection();
-  renderKPIs();
-  renderComposition();
-  renderChurnExec();
-  renderNRR();
-  renderTeamScoped();
-  renderN1N2();
-  renderRecupero();
-}
-
-document.getElementById('churnSwitch').addEventListener('click', function(){
-  churnByExec = !churnByExec;
-  this.classList.toggle('on', churnByExec);
-  renderChurnExec();
-});
-document.getElementById('nrrSwitch').addEventListener('click', function(){
-  nrrByExec = !nrrByExec;
-  this.classList.toggle('on', nrrByExec);
-  renderNRR();
-});
-document.getElementById('salesFilterSwitch').addEventListener('click', function(){
-  salesView = (salesView === 'adj') ? 'all' : 'adj';
-  this.classList.toggle('on', salesView === 'adj');
-  document.getElementById('salesFilterLabelAll').style.fontWeight = salesView === 'adj' ? '400' : '600';
-  document.getElementById('salesFilterLabelAdj').style.fontWeight = salesView === 'adj' ? '600' : '400';
-  renderObjetivo();
-  renderKPIs();
-  if (modalOpenState) openAccountModal(modalOpenState.title, modalOpenState.key);
-});
-document.getElementById('salesFilterLabelAll').style.fontWeight = '600';
-
-document.getElementById('updatedLabel').textContent = 'Objetivo de retención actualizado: ' + (DATA.lastRefreshed ? new Date(DATA.lastRefreshed).toLocaleString('es-AR') : 's/d') + ' · resto del tablero actualizado: ' + (DATA.manualDataUpdated ? new Date(DATA.manualDataUpdated+'T00:00:00').toLocaleDateString('es-AR') : 's/d');
-
-// ---- Panel de cuentas (bloqueadas hoy / recupero de bajas) ----
-let modalAccounts = [];
-let modalOpenState = null; // { title, key } — para poder refrescar si se toca el switch de ventas con el panel abierto
-function openAccountModal(title, key){
-  modalOpenState = { title, key };
-  const byExec = (DATA.accountLists && DATA.accountLists[key]) || {};
-  const list = selList();
-  // "s" = true cuando la cuenta tiene sales_count > 50. En modo "+50 ventas" filtramos a esas
-  // cuentas; en modo "todas las cuentas" se muestran todas, tengan o no el flag.
-  modalAccounts = [];
-  list.forEach(e => {
-    (byExec[e] || []).forEach(a => { if (salesView !== 'adj' || a.s === true) modalAccounts.push({ n: a.n, u: a.u, e, l: a.l }); });
-  });
-  const hasLoginDates = modalAccounts.some(a => a.l);
-  if (hasLoginDates) {
-    modalAccounts.sort((a,b) => (b.l||'').localeCompare(a.l||'') || a.n.localeCompare(b.n, 'es'));
-  } else {
-    modalAccounts.sort((a,b) => a.n.localeCompare(b.n, 'es'));
-  }
-  document.getElementById('accountModalTitle').textContent = title;
-  document.getElementById('accountModalSearch').value = '';
-  renderModalList('');
-  document.getElementById('accountModalOverlay').classList.add('open');
-  document.getElementById('accountModalSearch').focus();
-}
-function closeAccountModalState(){ modalOpenState = null; }
-function closeAccountModal(){
-  document.getElementById('accountModalOverlay').classList.remove('open');
-  closeAccountModalState();
-}
-function renderModalList(filterText){
-  const q = filterText.trim().toLowerCase();
-  const filtered = q ? modalAccounts.filter(a => a.n.toLowerCase().includes(q)) : modalAccounts;
-  document.getElementById('accountModalCount').textContent = `${filtered.length} de ${modalAccounts.length}`;
-  const list = document.getElementById('accountModalList');
-  if (!filtered.length) {
-    list.innerHTML = `<div class="modal-empty">${modalAccounts.length ? 'Sin resultados para "' + filterText + '"' : 'No hay cuentas seleccionadas'}</div>`;
-    return;
-  }
-  const showExec = selList().length > 1;
-  list.innerHTML = filtered.map(a => `
-    <a class="modal-row" href="${a.u}" target="_blank" rel="noopener">
-      <span>${a.n}${a.l ? `<br><span class="execname">último login: ${new Date(a.l+'T00:00:00').toLocaleDateString('es-AR')}</span>` : ''}</span>
-      ${showExec ? `<span class="execname">${a.e}</span>` : ''}
-    </a>
-  `).join('');
-}
-document.getElementById('accountModalSearch').addEventListener('input', e => renderModalList(e.target.value));
-document.getElementById('accountModalClose').addEventListener('click', closeAccountModal);
-document.getElementById('accountModalOverlay').addEventListener('click', e => { if (e.target.id === 'accountModalOverlay') closeAccountModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccountModal(); });
-document.getElementById('unlockDetails').addEventListener('toggle', function(){
-  // el chart se crea con el <details> cerrado (ancho/alto 0) — al abrirlo hay que forzar un resize
-  if (this.open && charts.unlockChart) charts.unlockChart.resize();
-});
-
-function buildMonthSelect(){
-  const sel = document.getElementById('monthSelect');
-  sel.innerHTML = MONTHS_END.map((mo, i) => `<option value="${mo}" ${mo===selectedMonth?'selected':''}>${MONTHS_LABEL[i]} (cerrado)</option>`).join('');
-  sel.addEventListener('change', () => {
-    selectedMonth = sel.value;
-    renderKPIs();
+  $("teamList").querySelectorAll("button[data-pw]").forEach(b=>b.onclick=async()=>{
+    const pw=genPass(); b.disabled=true;
+    const {error}=await sb.functions.invoke("usuarios",{body:{accion:"reset",email:b.dataset.pw,password:pw}});
+    b.disabled=false;
+    $("tMsg").innerHTML=error?esc("No se pudo cambiar: "+await fnError(error)):`Nueva contraseña de ${esc(b.dataset.pw)}: <b style="user-select:all">${esc(pw)}</b>. Copiala ahora, no se vuelve a mostrar.`;
   });
 }
+$("btnEquipo").onclick=()=>{$("teamModal").classList.add("open");loadTeam();$("tEmail").focus()};
+$("teamClose").onclick=()=>$("teamModal").classList.remove("open");
+$("tGen").onclick=()=>{$("tPass").value=genPass()};
+$("tAdd").onclick=async()=>{
+  const email=$("tEmail").value.trim().toLowerCase(), nombre=$("tNombre").value.trim(), password=$("tPass").value, rol=$("tRol").value;
+  if(!/^[^@\s]+@fu\.do$/.test(email)){toast("Ingresá un mail @fu.do");return}
+  if(password.length<8){toast("La contraseña tiene que tener al menos 8 caracteres");return}
+  $("tAdd").disabled=true;
+  const {error}=await sb.functions.invoke("usuarios",{body:{email,nombre,password,rol}});
+  $("tAdd").disabled=false;
+  if(error){$("tMsg").textContent="No se pudo crear: "+await fnError(error);return}
+  $("tMsg").innerHTML=`Listo. Pasale a ${esc(nombre||email)}: mail <b>${esc(email)}</b>, contraseña <b style="user-select:all">${esc(password)}</b>. Copiala ahora, no se vuelve a mostrar.`;
+  $("tEmail").value="";$("tNombre").value="";$("tPass").value=""; loadTeam();
+};
+$("btnPw").onclick=()=>{$("pwModal").classList.add("open");$("pw1").focus()};
+$("pwClose").onclick=()=>$("pwModal").classList.remove("open");
+$("pwForm").onsubmit=async ev=>{
+  ev.preventDefault();
+  if($("pw1").value.length<8){toast("Mínimo 8 caracteres");return}
+  if($("pw1").value!==$("pw2").value){toast("Las contraseñas no coinciden");return}
+  const {error}=await sb.auth.updateUser({password:$("pw1").value});
+  if(error){toast("No se pudo cambiar: "+error.message);return}
+  $("pwForm").reset();$("pwModal").classList.remove("open");toast("Contraseña actualizada");
+};
+})();
 
-buildExecDropdown();
-buildMonthSelect();
-renderAll();
 </script>
 </body>
 </html>

@@ -1,13 +1,25 @@
-# Central de llamados – Fudo CS
+# tribu
 
-Panel para la campaña de retención sobre cuentas de Argentina bloqueadas en Dash con estado comercial activo.
+Organizá salidas con tu grupo, sin perder nada en el chat. Y sumate a experiencias armadas por locales.
 
-- Frontend: `index.html` (página estática, se publica con GitHub Pages).
-- Backend: Supabase, proyecto «Central de llamados CS» (`rgbnwwppkrcbyolegnpi`).
-  - Tablas: `cuentas`, `gestiones`, `llamados`, `equipo`, `sync_log`.
-  - Edge Functions: `sync-cuentas` (trae las cuentas de HubSpot, corre cada hora de 8 a 21 hs), `contactos` (contactos de HubSpot + Intercom), `hubspot-llamado` (crea nota y tarea en HubSpot).
-- Acceso con mail y contraseña. Los usuarios los crea un líder desde el botón «Equipo» del panel (Edge Function `usuarios`), y solo entran mails @fu.do activos en la tabla `equipo`.
+## Qué hace
 
-La clave que aparece en `index.html` es la clave pública (publishable) de Supabase: está pensada para estar en el navegador. Los tokens de HubSpot e Intercom viven solo como secretos de Supabase, nunca en este repo.
+- **Tribus privadas:** tu grupo de amigos o del trabajo. Se entra solo con código de invitación.
+- **Salidas:** proponés una o varias fechas con un mínimo y un máximo de personas. Cada uno marca "Puedo" y se confirma la primera fecha que llega al mínimo.
+- **Lugares:** mapa y lista de los lugares que quiere conocer tu tribu, con votos y filtros por categoría.
+- **Experiencias:** actividades abiertas por categoría (vinos, café, té, vermut, ramen, pastelería) con fecha, cupo, mínimo para que se haga y precio. Te anotás solo o se la proponés a tu tribu.
+- **Perfil:** reseñas con sliders, puntos y ranking dentro de tu tribu.
 
-Para cambiar las propuestas comerciales o los motivos de baja, editá las listas `PROPUESTAS` y `MOTIVOS` al principio del script en `index.html`.
+## Publicar en GitHub Pages
+
+1. Subí todos los archivos a la raíz del repo.
+2. **Settings → Pages → Source: Deploy from a branch**, rama `main`, carpeta `/ (root)`.
+3. Queda online en `https://<usuario>.github.io/<repo>/`.
+
+## Demo
+
+Los datos se guardan en el dispositivo y la gente es ficticia. Para probar unirse a una tribu, usá el código `RAMEN1`. Las experiencias y sus locales son ejemplos inventados. Las ubicaciones de los lugares son aproximadas.
+
+## Identidad
+
+Verde cardón `#2F7D4A` (oscuro `#5FAE77`), negro `#111111`, fondo `#FAFAF7`. Tipografía Barlow.
